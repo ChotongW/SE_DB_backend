@@ -3,6 +3,7 @@ const app = express();
 const mysql = require('mysql');
 const cors = require('cors');
 const bodyParser = require("body-parser");
+const fs = require('fs');
 
 app.use(cors());
 app.use(express.json());
@@ -11,11 +12,12 @@ app.use(bodyParser.urlencoded({
  }));
 
 const db = mysql.createConnection({
-    user: "root",
-    host: "localhost",
-    password: "",
-    database: "carleasing",
-})
+    host:"csleasing.mysql.database.azure.com", 
+    user:"cs", 
+    password:"@sedb1234", 
+    database:"carleasing", 
+    port:3306, 
+    ssl:{ca:fs.readFileSync("DigiCertGlobalRootCA.crt.pem")}});
 
 app.get('/', (req, res) => {
     res.send("hello world");
