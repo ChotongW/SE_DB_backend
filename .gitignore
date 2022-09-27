@@ -3,6 +3,9 @@
 # dependencies
 **/node_modules**
 
+# SSL_CERT
+DigiCertGlobalRootCA.crt.pem
+
 # testing
 /coverage
 
