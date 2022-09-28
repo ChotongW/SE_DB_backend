@@ -6,7 +6,9 @@ const bodyParser = require("body-parser");
 const fs = require('fs');
 //const fileUpload = require('express-fileupload');
 const multer = require('multer')
-const BlobServiceClient = require('@azure/storage-blob');
+const { BlobServiceClient } = require('@azure/storage-blob');
+const { v1: uuidv1} = require('uuid');
+require('dotenv').config()
 
 app.use(cors());
 app.use(express.json());
@@ -40,6 +42,28 @@ const storage = multer.diskStorage({
 })
   
 const upload = multer({ storage: storage })
+
+const AZURE_STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING;
+if (!AZURE_STORAGE_CONNECTION_STRING) {
+  throw Error("Azure Storage Connection string not found");
+}
+//console.log(AZURE_STORAGE_CONNECTION_STRING)
+
+// Create the BlobServiceClient object which will be used to create a container client
+const blobServiceClient = BlobServiceClient.fromConnectionString(
+  AZURE_STORAGE_CONNECTION_STRING
+);
+
+// Create a unique name for the container
+const containerName = "carimg"
+
+console.log("\nconnecting container...");
+console.log("\t", containerName);
+
+// Get a reference to a container
+const containerClient = blobServiceClient.getContainerClient(containerName);
+
+console.log(`Container was created successfully.\n\tURL: ${containerClient.url}`);
 
 app.get('/', (req, res) => {
     res.send("hello world");
@@ -85,11 +109,25 @@ app.get('/vehicle/', (req, res) => {
 
 app.post('/vehicle/image', upload.single('file'), (req, res) => {
   let vehicle_id = req.query.vehicleId;
-  let simpleFIle = req.file
-  console.log(simpleFIle.filename)
+  let simpleFile = req.file
+
+  // Create a unique name for the blob
+  const blobName = simpleFile.filename;
+
+  // Get a block blob client
+  const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+  // Display blob name and url
+  console.log(`\nUploading to Azure storage as blob\n\tname: ${blobName}:\n\tURL: ${blockBlobClient.url}`);
+
+  // Upload data to the blob
+  blockBlobClient.uploadFile(simpleFile.path, simpleFile.filename);
   
+  console.log(`Blob was uploaded successfully`);
+
+  //mysql store url
   var sql = 'UPDATE vehicles SET vehicle_img = ? where vehicle_id = ?';
-        db.query(sql, [simpleFIle.filename, vehicle_id], (err, rows) => {
+        db.query(sql, [blockBlobClient.url, vehicle_id], (err, rows) => {
           if (!err) {
             //res.redirect('/');
             res.send('File uploaded successfully');
@@ -98,6 +136,29 @@ app.post('/vehicle/image', upload.single('file'), (req, res) => {
             res.status(500).send(err)}})
 });
 
+app.post('/upload', upload.single('file'), (req, res) => {
+    let simpleFile = req.file
+    // Create a unique name for the blob
+    const blobName = simpleFile.filename;
+
+    // Get a block blob client
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+  
+    // Display blob name and url
+    console.log(`\nUploading to Azure storage as blob\n\tname: ${blobName}:\n\tURL: ${blockBlobClient.url}`);
+  
+    // Upload data to the blob
+    //console.log(simpleFile)
+    blockBlobClient.uploadFile(simpleFile.path, simpleFile.filename.length);
+    console.log(`Blob was uploaded successfully`);
+    res.send('File uploaded successfully');
+
+  //   fs.unlink(simpleFile.path, (err) => {
+  //     if (err) throw err;
+  //     // if no error, file has been deleted successfully
+  //     console.log('File deleted!');
+  // });
+});
 // app.post('/vehicle/image', (req, res) => {
 //     let vehicle_id = req.query.vehicleId;
 //     let sampleFile;
