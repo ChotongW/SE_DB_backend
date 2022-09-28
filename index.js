@@ -7,7 +7,6 @@ const fs = require('fs');
 //const fileUpload = require('express-fileupload');
 const multer = require('multer')
 const { BlobServiceClient } = require('@azure/storage-blob');
-const { v1: uuidv1} = require('uuid');
 require('dotenv').config()
 
 app.use(cors());
@@ -159,37 +158,6 @@ app.post('/upload', upload.single('file'), (req, res) => {
   //     console.log('File deleted!');
   // });
 });
-// app.post('/vehicle/image', (req, res) => {
-//     let vehicle_id = req.query.vehicleId;
-//     let sampleFile;
-//     let uploadPath;
-  
-//     if (!req.files || Object.keys(req.files).length === 0) {
-//         console.log(req.files)
-//       return res.status(400).send('No files were uploaded.');
-//     }
-//     // name of the input is sampleFile
-//     sampleFile = req.files['file'];
-//     console.log(sampleFile);
-//     uploadPath = __dirname + '/upload/' + sampleFile.name;
-  
-//     //console.log(sampleFile);
-  
-//     // Use mv() to place file on the server
-//     sampleFile.mv(uploadPath, function (err) {
-//       if (err) return res.status(500).send(err);
-        
-//         var sql = 'UPDATE vehicles SET vehicle_img = ? where vehicle_id = ?';
-//         db.query(sql, [sampleFile.name, vehicle_id], (err, rows) => {
-//           if (!err) {
-//             res.redirect('/');
-//           } else {
-//             console.log(err);
-//             res.status(500).send(err);
-//           }
-//         });
-//       });
-//   });
 
 app.listen('5500', () => {
     console.log("Server is running on port 5500");
