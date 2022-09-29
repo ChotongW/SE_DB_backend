@@ -21,9 +21,18 @@ const containerClient = blobServiceClient.getContainerClient(containerName);
 
 //console.log(`Container was created successfully.\n\tURL: ${containerClient.url}`);
 
+function blob_upload(simpleFile) {
+  const blobName = simpleFile.filename;
+  const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+  console.log(`\nUploading to Azure storage as blob\n\tname: ${blobName}:\n\tURL: ${blockBlobClient.url}`);
+  blockBlobClient.uploadFile(simpleFile.path, simpleFile.filename)
+  return (`Blob was uploaded successfully`)
+}
+
 module.exports = {
     blobServiceClient,
     containerClient,
+    blob_upload,
   }
 // module.exports = blobServiceClient;
 // module.otherMethod  = containerClient;

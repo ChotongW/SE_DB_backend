@@ -6,20 +6,18 @@ const blob = require('../storage/blob');
 
 router.put('/', upload.single('file'), (req, res) => {
     let simpleFile = req.file
-    // Create a unique name for the blob
-    const blobName = simpleFile.filename;
 
-    // Get a block blob client
-    const blockBlobClient = blob.containerClient.getBlockBlobClient(blobName);
-  
-    // Display blob name and url
-    console.log(`\nUploading to Azure storage as blob\n\tname: ${blobName}:\n\tURL: ${blockBlobClient.url}`);
-  
-    // Upload data to the blob
-    //console.log(simpleFile)
-    blockBlobClient.uploadFile(simpleFile.path, simpleFile.filename.length);
-    console.log(`Blob was uploaded successfully`);
-    res.send('File uploaded successfully');
+    //upload to storage account
+    try {
+      let callback = blob.blob_upload(simpleFile)
+      //res.redirect('/');
+      console.log(callback);
+      res.send('File uploaded successfully');
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("Failure uploading");
+    }
+    //console.log(upload_res);
 
   //   fs.unlink(simpleFile.path, (err) => {
   //     if (err) throw err;

@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const index = require('./routes/route');
+const index = require('./routes/vehicle');
 const test = require('./routes/test');
 const blob = require('./storage/blob');
 
