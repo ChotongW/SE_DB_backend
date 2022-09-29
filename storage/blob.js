@@ -11,4 +11,19 @@ const blobServiceClient = BlobServiceClient.fromConnectionString(
   AZURE_STORAGE_CONNECTION_STRING
 );
 
-module.exports = blobServiceClient;
+const containerName = "carimg"
+
+// console.log("\nconnecting container...");
+// console.log("\t", containerName);
+
+// Get a reference to a container
+const containerClient = blobServiceClient.getContainerClient(containerName);
+
+//console.log(`Container was created successfully.\n\tURL: ${containerClient.url}`);
+
+module.exports = {
+    blobServiceClient,
+    containerClient,
+  }
+// module.exports = blobServiceClient;
+// module.otherMethod  = containerClient;

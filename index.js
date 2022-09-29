@@ -1,8 +1,8 @@
 const express = require('express');
 const app = express();
 const index = require('./routes/route');
-const db = require('./database/db');
-const blobServiceClient = require('./storage/blob');
+const test = require('./routes/test');
+const blob = require('./storage/blob');
 
 const cors = require('cors');
 const bodyParser = require("body-parser");
@@ -18,26 +18,19 @@ app.use(bodyParser.urlencoded({
     extended: false
  }));
 
-app.use('/', index);
-//app.use('/', upload);
+app.use('/vehicle', index);
+app.use('/upload', test);
 
-db.connect(function (err) {
-    if (err) {
-        return console.error('error: ' + err.message);
-    }
-    console.log('Connected to the MySQL server.');
-})
+// db.connect(function (err) {
+//     if (err) {
+//         return console.error('error: ' + err.message);
+//     }
+//     console.log('Connected to the MySQL server.');
+// })
 
-const containerName = "carimg"
-
-console.log("\nconnecting container...");
-console.log("\t", containerName);
-
-// Get a reference to a container
-const containerClient = blobServiceClient.getContainerClient(containerName);
-
-console.log(`Container was created successfully.\n\tURL: ${containerClient.url}`);
-
+app.get('/', (req, res) => {
+  res.send("Home page");
+});
 
 app.listen('5500', () => {
     console.log("Server is running on port 5500");

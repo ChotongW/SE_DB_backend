@@ -2,20 +2,17 @@ const express = require('express');
 router = express.Router()
 const db = require('../database/db');
 const upload = require('../storage/multer');
+const blob = require('../storage/blob');
 
 router.get('/', (req, res) => {
-    res.send("Home page");
+  db.query('SELECT * FROM vehicles', (err, result) =>{
+    if (err) throw err ,res.status(500).send(err, 500);
+    //console.log(rows);
+    res.send((result));
+    });
 });
 
-router.get('/vehicles', (req, res) => { 
-    db.query('SELECT * FROM vehicles', (err, result) =>{
-        if (err) throw err ,res.status(500).send(err, 500);
-        //console.log(rows);
-        res.send((result));
-        });
-});
-
-router.get('/vehicle/', (req, res) => { 
+router.get('/id', (req, res) => { 
     let vehicle_id = req.query.vehicleId;
     /*
     if (vehicle_id == null){
@@ -45,7 +42,7 @@ router.get('/vehicle/', (req, res) => {
     */
 });
 
-router.put('/vehicle/image', upload.single('file'), (req, res) => {
+router.put('/image', upload.single('file'), (req, res) => {
     let vehicle_id = req.query.vehicleId;
     let simpleFile = req.file
   
@@ -53,7 +50,7 @@ router.put('/vehicle/image', upload.single('file'), (req, res) => {
     const blobName = simpleFile.filename;
   
     // Get a block blob client
-    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+    const blockBlobClient = blob.containerClient.getBlockBlobClient(blobName);
   
     // Display blob name and url
     console.log(`\nUploading to Azure storage as blob\n\tname: ${blobName}:\n\tURL: ${blockBlobClient.url}`);
@@ -73,29 +70,29 @@ router.put('/vehicle/image', upload.single('file'), (req, res) => {
               console.log(err);
               res.status(500).send(err)}})
   });
-  
-router.post('/upload', upload.single('file'), (req, res) => {
-    let simpleFile = req.file
-    // Create a unique name for the blob
-    const blobName = simpleFile.filename;
 
-    // Get a block blob client
-    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-  
-    // Display blob name and url
-    console.log(`\nUploading to Azure storage as blob\n\tname: ${blobName}:\n\tURL: ${blockBlobClient.url}`);
-  
-    // Upload data to the blob
-    //console.log(simpleFile)
-    blockBlobClient.uploadFile(simpleFile.path, simpleFile.filename.length);
-    console.log(`Blob was uploaded successfully`);
-    res.send('File uploaded successfully');
+// router.post('/upload', upload.single('file'), (req, res) => {
+//   let simpleFile = req.file
+//   // Create a unique name for the blob
+//   const blobName = simpleFile.filename;
 
-  //   fs.unlink(simpleFile.path, (err) => {
-  //     if (err) throw err;
-  //     // if no error, file has been deleted successfully
-  //     console.log('File deleted!');
-  // });
-});
+//   // Get a block blob client
+//   const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+//   // Display blob name and url
+//   console.log(`\nUploading to Azure storage as blob\n\tname: ${blobName}:\n\tURL: ${blockBlobClient.url}`);
+
+//   // Upload data to the blob
+//   //console.log(simpleFile)
+//   blockBlobClient.uploadFile(simpleFile.path, simpleFile.filename.length);
+//   console.log(`Blob was uploaded successfully`);
+//   res.send('File uploaded successfully');
+
+// //   fs.unlink(simpleFile.path, (err) => {
+// //     if (err) throw err;
+// //     // if no error, file has been deleted successfully
+// //     console.log('File deleted!');
+// // });
+// });
 
 module.exports = router;
