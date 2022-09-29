@@ -9,7 +9,7 @@ router.put('/', upload.single('file'), (req, res) => {
 
     //upload to storage account
     try {
-      let callback = blob.blob_upload(simpleFile)
+      var callback = blob.blob_upload(simpleFile)
       //res.redirect('/');
       console.log(callback);
       res.send('File uploaded successfully');
@@ -18,7 +18,6 @@ router.put('/', upload.single('file'), (req, res) => {
       res.status(500).send("Failure uploading");
     }
     //console.log(upload_res);
-
   //   fs.unlink(simpleFile.path, (err) => {
   //     if (err) throw err;
   //     // if no error, file has been deleted successfully

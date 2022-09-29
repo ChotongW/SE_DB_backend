@@ -15,7 +15,7 @@ require('dotenv').config()
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.urlencoded({
-    extended: false
+    extended: true
  }));
 
 app.use('/vehicle', index);
