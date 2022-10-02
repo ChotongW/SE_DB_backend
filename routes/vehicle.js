@@ -125,7 +125,8 @@ router.post('/img', upload.single('file'), (req, res) => {
           message: 'You have some fields unfilled.',
       });
   }
-  res.send(simpleFile);
+  console.log(simpleFile);
+  //res.send(simpleFile);
 //   //upload to storage account
 //   try {
 //     let callback = blob.blob_upload(simpleFile)
