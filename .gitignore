@@ -7,6 +7,9 @@ upload/*
 # SSL_CERT
 DigiCertGlobalRootCA.crt.pem
 
+#env
+.env
+
 # testing
 /coverage
 

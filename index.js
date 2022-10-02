@@ -2,15 +2,11 @@ const express = require('express');
 const app = express();
 const index = require('./routes/vehicle');
 const test = require('./routes/test');
-const blob = require('./storage/blob');
+const authen = require('./routes/authen');
+const db = require('./config/db');
 
 const cors = require('cors');
 const bodyParser = require("body-parser");
-const fs = require('fs');
-//const fileUpload = require('express-fileupload');
-//const multer = require('multer')
-//const { BlobServiceClient } = require('@azure/storage-blob');
-require('dotenv').config()
 
 app.use(cors());
 app.use(express.json());
@@ -19,7 +15,8 @@ app.use(bodyParser.urlencoded({
  }));
 
 app.use('/vehicle', index);
-app.use('/upload', test);
+app.use('/test', test);
+app.use('/authen', authen);
 
 // db.connect(function (err) {
 //     if (err) {

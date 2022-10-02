@@ -3,8 +3,17 @@ router = express.Router()
 const db = require('../config/db');
 const upload = require('../storage/multer');
 const blob = require('../storage/blob');
+const userMiddleware = require('../middleware/user');
 
-router.put('/', upload.single('file'), (req, res) => {
+router.get('/getAll', userMiddleware.isLoggedIn, (req, res) => {
+  db.query('SELECT * FROM vehicles', (err, result) =>{
+    if (err) throw err ,res.status(500).send(err, 500);
+    //console.log(rows);
+    res.send((result));
+    });
+});
+
+router.put('/upload', upload.single('file'), (req, res) => {
     let simpleFile = req.file
 
     //upload to storage account
