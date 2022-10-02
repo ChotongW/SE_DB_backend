@@ -1,6 +1,6 @@
 const express = require('express');
 router = express.Router()
-const db = require('../database/db');
+const db = require('../config/db');
 const upload = require('../storage/multer');
 const blob = require('../storage/blob');
 

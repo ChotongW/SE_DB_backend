@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require("body-parser");
 router = express.Router()
-const db = require('../database/db');
+const db = require('../config/db');
 const upload = require('../storage/multer');
 const blob = require('../storage/blob');
 
@@ -72,7 +72,7 @@ router.put('/image', upload.single('file'), (req, res) => {
               res.status(500).send(err)}})
   });
 
-router.post('/', upload.single('file'), (req, res) => {
+router.post('/', (req, res) => {
   let vehicle_id = req.body.carId;
   let carModel = req.body.carName;
   let description = req.body.description;
@@ -90,7 +90,42 @@ router.post('/', upload.single('file'), (req, res) => {
   let brand = carModel.split(' ')[0];
   let carName = carModel.split(' ')[1];
   let year = carModel.split(' ')[2];
+  res.send(200)
+//   //upload to storage account
+//   try {
+//     let callback = blob.blob_upload(simpleFile)
+//     console.log(callback);
+//     //res.send('File uploaded successfully');
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).send("Failure uploading");
+//   }
+//   var sql = "INSERT INTO vehicles (vehicle_id, name,  brand, year, cost, availability, type_id, vehicle_img) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+//   db.query(sql, [vehicle_id, carName, brand, year, price, 1, 1, callback], (err, result) => {
+//     if (!err) {
+//       res.send(201,'Created vehicle already');
+//       //res.redirect(201, '/');
+//     } else {
+//       console.log(err);
+//       res.send(500, err)}})
+// //   fs.unlink(simpleFile.path, (err) => {
+// //     if (err) throw err;
+// //     // if no error, file has been deleted successfully
+// //     console.log('File deleted!');
+// // });
+});
 
+router.post('/img', upload.single('file'), (req, res) => {
+  let simpleFile = req.file
+  //let booking_status = req.booking_status;
+
+  if (simpleFile == null) {
+      res.send({
+          status: 'incompleted',
+          message: 'You have some fields unfilled.',
+      });
+  }
+  res.send(simpleFile);
 //   //upload to storage account
 //   try {
 //     let callback = blob.blob_upload(simpleFile)
