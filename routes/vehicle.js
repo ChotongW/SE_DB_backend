@@ -1,17 +1,19 @@
 const express = require('express');
 const bodyParser = require("body-parser");
-router = express.Router()
 const db = require('../config/db');
 const upload = require('../storage/multer');
 const blob = require('../storage/blob');
+const userMiddleware = require('../middleware/user');
 
+router = express.Router()
 router.use(express.json());
 router.use(bodyParser.urlencoded({
     extended: true
  }));
 
 router.get('/', (req, res) => {
-  db.query('SELECT * FROM vehicles', (err, result) =>{
+  var sql = 'SELECT * FROM vehicles';
+  db.query(sql, (err, result) =>{
     if (err) throw err ,res.status(500).send(err, 500);
     //console.log(rows);
     res.send((result));
@@ -46,7 +48,7 @@ router.get('/id', (req, res) => {
     //   });
 });
 
-router.put('/image', upload.single('file'), (req, res) => {
+router.put('/image', userMiddleware.isLoggedIn, upload.single('file'), (req, res) => {
     let vehicle_id = req.query.vehicleId;
     let simpleFile = req.file
   
@@ -72,7 +74,8 @@ router.put('/image', upload.single('file'), (req, res) => {
               res.status(500).send(err)}})
   });
 
-router.post('/', (req, res) => {
+router.post('/', userMiddleware.isLoggedIn, upload.single('file'), (req, res) => {
+  console.log(req.body);
   let vehicle_id = req.body.carId;
   let carModel = req.body.carName;
   let description = req.body.description;
@@ -86,68 +89,32 @@ router.post('/', (req, res) => {
           message: 'You have some fields unfilled.',
       });
   }
-  console.log(price);
+  console.log(simpleFile);
   let brand = carModel.split(' ')[0];
   let carName = carModel.split(' ')[1];
   let year = carModel.split(' ')[2];
-  res.send(200)
-//   //upload to storage account
-//   try {
-//     let callback = blob.blob_upload(simpleFile)
-//     console.log(callback);
-//     //res.send('File uploaded successfully');
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).send("Failure uploading");
-//   }
-//   var sql = "INSERT INTO vehicles (vehicle_id, name,  brand, year, cost, availability, type_id, vehicle_img) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
-//   db.query(sql, [vehicle_id, carName, brand, year, price, 1, 1, callback], (err, result) => {
-//     if (!err) {
-//       res.send(201,'Created vehicle already');
-//       //res.redirect(201, '/');
-//     } else {
-//       console.log(err);
-//       res.send(500, err)}})
-// //   fs.unlink(simpleFile.path, (err) => {
-// //     if (err) throw err;
-// //     // if no error, file has been deleted successfully
-// //     console.log('File deleted!');
-// // });
-});
-
-router.post('/img', upload.single('file'), (req, res) => {
-  let simpleFile = req.file
-  //let booking_status = req.booking_status;
-
-  if (simpleFile == null) {
-      res.send({
-          status: 'incompleted',
-          message: 'You have some fields unfilled.',
-      });
+  //res.send(200)
+  //upload to storage account
+  try {
+    let callback = blob.blob_upload(simpleFile)
+    console.log(callback);
+    //res.send('File uploaded successfully');
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Failure uploading");
   }
-  console.log(simpleFile);
-  //res.send(simpleFile);
-//   //upload to storage account
-//   try {
-//     let callback = blob.blob_upload(simpleFile)
-//     console.log(callback);
-//     //res.send('File uploaded successfully');
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).send("Failure uploading");
-//   }
-//   var sql = "INSERT INTO vehicles (vehicle_id, name,  brand, year, cost, availability, type_id, vehicle_img) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
-//   db.query(sql, [vehicle_id, carName, brand, year, price, 1, 1, callback], (err, result) => {
-//     if (!err) {
-//       res.send(201,'Created vehicle already');
-//       //res.redirect(201, '/');
-//     } else {
-//       console.log(err);
-//       res.send(500, err)}})
-// //   fs.unlink(simpleFile.path, (err) => {
-// //     if (err) throw err;
-// //     // if no error, file has been deleted successfully
-// //     console.log('File deleted!');
+  var sql = "INSERT INTO vehicles (vehicle_id, name,  brand, year, cost, availability, type_id, vehicle_img) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+  db.query(sql, [vehicle_id, carName, brand, year, price, 1, 1, callback], (err, result) => {
+    if (!err) {
+      res.send(201,'Created vehicle already');
+      //res.redirect(201, '/');
+    } else {
+      console.log(err);
+      res.send(500, err)}})
+//   fs.unlink(simpleFile.path, (err) => {
+//     if (err) throw err;
+//     // if no error, file has been deleted successfully
+//     console.log('File deleted!');
 // // });
 });
 

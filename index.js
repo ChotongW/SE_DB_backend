@@ -3,6 +3,7 @@ const app = express();
 const index = require('./routes/vehicle');
 const test = require('./routes/test');
 const authen = require('./routes/authen');
+const book = require('./routes/booking');
 const db = require('./config/db');
 
 const cors = require('cors');
@@ -17,6 +18,7 @@ app.use(bodyParser.urlencoded({
 app.use('/vehicle', index);
 app.use('/test', test);
 app.use('/authen', authen);
+app.use('/booking', book);
 
 // db.connect(function (err) {
 //     if (err) {
