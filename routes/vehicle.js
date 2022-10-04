@@ -59,7 +59,7 @@ router.put('/image', userMiddleware.isLoggedIn, upload.single('file'), (req, res
       //res.send('File uploaded successfully');
     } catch (error) {
       console.log(error);
-      res.status(500).send("Failure uploading");
+      res.status(500).send({respone :"Failure uploading"});
     }
     //console.log(upload_res);
     
@@ -81,6 +81,7 @@ router.post('/', userMiddleware.isLoggedIn, upload.single('file'), (req, res) =>
   let description = req.body.description;
   let review = req.body.review;
   let price = parseInt(req.body.price, 10);
+  let vehicle_type = parseInt(req.body.typeId, 10);
   let simpleFile = req.file
   //let booking_status = req.booking_status;
   if (carModel == null || vehicle_id == null || price == null) {
@@ -103,14 +104,14 @@ router.post('/', userMiddleware.isLoggedIn, upload.single('file'), (req, res) =>
     console.log(error);
     res.status(500).send("Failure uploading");
   }
-  var sql = "INSERT INTO vehicles (vehicle_id, name,  brand, year, cost, availability, type_id, vehicle_img) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
-  db.query(sql, [vehicle_id, carName, brand, year, price, 1, 1, callback], (err, result) => {
+  var sql = "INSERT INTO vehicles (vehicle_id, name,  brand, year, cost, availability, type_id, vehicle_img, description, review) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  db.query(sql, [vehicle_id, carName, brand, year, price, 1, vehicle_type, callback, description, review], (err, result) => {
     if (!err) {
-      res.send(201,{"res" :'Created vehicle already'});
+      res.send(201,{response :'Created vehicle already'});
       //res.redirect(201, '/');
     } else {
       console.log(err);
-      res.send(500, err)}})
+      res.send(500, {response :err})}})
 //   fs.unlink(simpleFile.path, (err) => {
 //     if (err) throw err;
 //     // if no error, file has been deleted successfully
