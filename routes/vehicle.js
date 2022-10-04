@@ -96,7 +96,7 @@ router.post('/', userMiddleware.isLoggedIn, upload.single('file'), (req, res) =>
   //res.send(200)
   //upload to storage account
   try {
-    let callback = blob.blob_upload(simpleFile)
+    var callback = blob.blob_upload(simpleFile)
     console.log(callback);
     //res.send('File uploaded successfully');
   } catch (error) {
@@ -106,7 +106,30 @@ router.post('/', userMiddleware.isLoggedIn, upload.single('file'), (req, res) =>
   var sql = "INSERT INTO vehicles (vehicle_id, name,  brand, year, cost, availability, type_id, vehicle_img) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
   db.query(sql, [vehicle_id, carName, brand, year, price, 1, 1, callback], (err, result) => {
     if (!err) {
-      res.send(201,'Created vehicle already');
+      res.send(201,{"res" :'Created vehicle already'});
+      //res.redirect(201, '/');
+    } else {
+      console.log(err);
+      res.send(500, err)}})
+//   fs.unlink(simpleFile.path, (err) => {
+//     if (err) throw err;
+//     // if no error, file has been deleted successfully
+//     console.log('File deleted!');
+// // });
+});
+
+router.delete('/id', userMiddleware.isLoggedIn, (req, res) => {
+  let vehicle_id = req.body.carId;
+  if (vehicle_id == null) {
+      res.send({
+          status: 'incompleted',
+          message: 'You must have car ID.',
+      });
+  }
+  var sql = "DELETE FROM vehicels WHERE vehicle_id = ?;";
+  db.query(sql, vehicle_id, (err, result) => {
+    if (!err) {
+      res.send(200,'Deleted vehicle already');
       //res.redirect(201, '/');
     } else {
       console.log(err);
