@@ -1,8 +1,9 @@
-const { BlobServiceClient } = require('@azure/storage-blob');
-const dotenv = require("dotenv")
-dotenv.config()
+const { BlobServiceClient } = require("@azure/storage-blob");
+const dotenv = require("dotenv");
+dotenv.config();
 
-const AZURE_STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING;
+const AZURE_STORAGE_CONNECTION_STRING =
+  process.env.AZURE_STORAGE_CONNECTION_STRING;
 if (!AZURE_STORAGE_CONNECTION_STRING) {
   throw Error("Azure Storage Connection string not found");
 }
@@ -13,7 +14,7 @@ const blobServiceClient = BlobServiceClient.fromConnectionString(
   AZURE_STORAGE_CONNECTION_STRING
 );
 
-const containerName = "carimg"
+const containerName = "carimg";
 
 // console.log("\nconnecting container...");
 // console.log("\t", containerName);
@@ -26,16 +27,18 @@ const containerClient = blobServiceClient.getContainerClient(containerName);
 function blob_upload(simpleFile) {
   const blobName = simpleFile.filename;
   const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-  console.log(`\nUploading to Azure storage as blob\n\tname: ${blobName}:\n\tURL: ${blockBlobClient.url}`);
-  blockBlobClient.uploadFile(simpleFile.path, simpleFile.filename)
-  console.log(`Blob was uploaded successfully`)
+  console.log(
+    `\nUploading to Azure storage as blob\n\tname: ${blobName}:\n\tURL: ${blockBlobClient.url}`
+  );
+  blockBlobClient.uploadFile(simpleFile.path, simpleFile.filename);
+  console.log(`Blob was uploaded successfully`);
   return blockBlobClient.url;
 }
 
 module.exports = {
-    blobServiceClient,
-    containerClient,
-    blob_upload,
-  }
+  blobServiceClient,
+  containerClient,
+  blob_upload,
+};
 // module.exports = blobServiceClient;
 // module.otherMethod  = containerClient;

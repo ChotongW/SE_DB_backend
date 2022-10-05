@@ -13,7 +13,7 @@ module.exports = {
     // password min 6 chars
     if (!req.body.password || req.body.password.length < 6) {
       return res.status(400).send({
-        msg: 'Please enter a password with min. 6 chars'
+        msg: "Please enter a password with min. 6 chars",
       });
     }
 
@@ -31,16 +31,16 @@ module.exports = {
   },
   isLoggedIn: (req, res, next) => {
     try {
-      const token = req.headers.authorization.split(' ')[1];
-      const decoded = jwt.verify(token,process.env.ACCESS_TOKEN_SECRET)
-    //   console.log(token);
-    //   console.log(decoded);
+      const token = req.headers.authorization.split(" ")[1];
+      const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+      //   console.log(token);
+      //   console.log(decoded);
       req.userData = decoded;
       next();
     } catch (err) {
       return res.status(401).send({
-        msg: 'Your session is not valid!'
+        msg: "Your session is not valid!",
       });
     }
-  }
+  },
 };
