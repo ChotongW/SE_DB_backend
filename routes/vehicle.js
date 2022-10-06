@@ -55,15 +55,20 @@ router.put(
   "/image",
   userMiddleware.isLoggedIn,
   upload.single("file"),
-  (req, res) => {
+  async (req, res) => {
     let vehicle_id = req.query.vehicleId;
     let simpleFile = req.file;
 
     //upload to storage account
     try {
-      var callback = blob.blob_upload(simpleFile);
+      var callback = await blob.blob_upload(simpleFile);
       console.log(callback);
       //res.send('File uploaded successfully');
+      fs.unlink(simpleFile.path, (err) => {
+        if (err) throw err;
+        // if no error, file has been deleted successfully
+        console.log("Local file deleted!");
+      });
     } catch (error) {
       console.log(error);
       res.status(500).send({ respone: "Failure uploading" });
@@ -115,15 +120,15 @@ router.post(
       console.log(callback);
       //res.send('File uploaded successfully');
       console.log("File uploaded successfully");
-      fs.unlink(simpleFile.path, (err) => {
-        if (err) throw err;
-        // if no error, file has been deleted successfully
-        console.log("Local file deleted!");
-      });
     } catch (error) {
       console.log(error);
       res.status(500).send("Failure uploading");
     }
+    fs.unlink(simpleFile.path, (err) => {
+      if (err) throw err;
+      // if no error, file has been deleted successfully
+      console.log("Local file deleted!");
+    });
     var sql =
       "INSERT INTO vehicles (vehicle_id, name,  brand, year, cost, availability, type_id, vehicle_img, description, review) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     db.query(

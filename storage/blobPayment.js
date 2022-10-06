@@ -24,13 +24,13 @@ const containerClient = blobServiceClient.getContainerClient(containerName);
 
 //console.log(`Container was created successfully.\n\tURL: ${containerClient.url}`);
 
-function payment_upload(simpleFile) {
-  const blobName = simpleFile.filename;
+async function payment_upload(simpleFile) {
+  const blobName = await simpleFile.filename;
   const blockBlobClient = containerClient.getBlockBlobClient(blobName);
   console.log(
     `\nUploading to Azure storage as blob\n\tname: ${blobName}:\n\tURL: ${blockBlobClient.url}`
   );
-  blockBlobClient.uploadFile(simpleFile.path, simpleFile.filename);
+  await blockBlobClient.uploadFile(simpleFile.path, simpleFile.filename);
   console.log(`payment was uploaded successfully`);
   return blockBlobClient.url;
 }

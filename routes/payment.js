@@ -4,6 +4,7 @@ const db = require("../config/db");
 const upload = require("../storage/multer");
 const blob = require("../storage/blobPayment");
 const userMiddleware = require("../middleware/user");
+const fs = require("fs");
 var uuid = require("uuid");
 
 router = express.Router();
@@ -37,12 +38,47 @@ router.get("/admin", userMiddleware.isLoggedIn, (req, res) => {
   //   });
 });
 
-router.post(
+router.put(
   "/",
   userMiddleware.isLoggedIn,
   upload.single("file"),
-  (req, res) => {
-    res.send({ msg: "Test payment" });
+  async (req, res) => {
+    let slip = req.file;
+    //ส่ง bill_id กลับมาด้วยนะ *** เป็น form-data นะ ***
+    let bill_id = req.body.bill_id;
+    //let booking_status = req.booking_status;
+    if (slip == null) {
+      res.send({
+        status: "incompleted",
+        message: "You should upload payment slip.",
+      });
+    }
+    try {
+      var callback = await blob.payment_upload(slip);
+      console.log(callback);
+      //res.send('File uploaded successfully');
+      console.log("File uploaded successfully");
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("Failure uploading");
+    }
+    fs.unlink(slip.path, (err) => {
+      if (err) throw err;
+      // if no error, file has been deleted successfully
+      console.log("Local file deleted!");
+    });
+    var sql = "UPDATE billing \
+    SET slip =  ? \
+    WHERE bill_id = ?;";
+    db.query(sql, [callback, bill_id], (err, result) => {
+      if (!err) {
+        res.send(201, { response: "upload slip already" });
+        //res.redirect(201, '/');
+      } else {
+        console.log(err);
+        res.send(500, { response: err });
+      }
+    });
   }
 );
 
