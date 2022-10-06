@@ -4,6 +4,7 @@ const db = require("../config/db");
 const upload = require("../storage/multer");
 const blob = require("../storage/blobCar");
 const userMiddleware = require("../middleware/user");
+const fs = require("fs");
 
 router = express.Router();
 router.use(express.json());
@@ -87,8 +88,8 @@ router.post(
   "/",
   userMiddleware.isLoggedIn,
   upload.single("file"),
-  (req, res) => {
-    console.log(req.body);
+  async (req, res) => {
+    //console.log(req.body);
     let vehicle_id = req.body.carId;
     let carModel = req.body.carName;
     let description = req.body.description;
@@ -103,16 +104,22 @@ router.post(
         message: "You have some fields unfilled.",
       });
     }
-    console.log(simpleFile);
+    //console.log(simpleFile);
     let brand = carModel.split(" ")[0];
     let carName = carModel.split(" ")[1];
     let year = carModel.split(" ")[2];
     //res.send(200)
     //upload to storage account
     try {
-      var callback = blob.blob_upload(simpleFile);
+      var callback = await blob.blob_upload(simpleFile);
       console.log(callback);
       //res.send('File uploaded successfully');
+      console.log("File uploaded successfully");
+      fs.unlink(simpleFile.path, (err) => {
+        if (err) throw err;
+        // if no error, file has been deleted successfully
+        console.log("Local file deleted!");
+      });
     } catch (error) {
       console.log(error);
       res.status(500).send("Failure uploading");

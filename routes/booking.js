@@ -4,6 +4,7 @@ const db = require("../config/db");
 const upload = require("../storage/multer");
 const blob = require("../storage/blobCar");
 const userMiddleware = require("../middleware/user");
+const payment = require("../routes/payment");
 var uuid = require("uuid");
 
 router = express.Router();
@@ -53,6 +54,18 @@ router.post("/book", (req, res) => {
           } else {
             console.log(err);
           }
+        });
+
+        var sql = "SELECT cost FROM vehicles WHERE vehicle_id = ?";
+        db.query(sql, vehicle_id, (err, result) => {
+          var cost = result[0].cost;
+          var diffDays =
+            parseInt(end_date.split("-")[2], 10) -
+            parseInt(start_date.split("-")[2], 10);
+          var total_amount = diffDays * cost;
+          //console.log(total_amount);
+          const response = payment.createBill(total_amount, id_no);
+          //console.log("complete");
         });
       }
     } else {

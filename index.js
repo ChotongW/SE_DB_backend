@@ -22,7 +22,7 @@ app.use("/vehicle", index);
 app.use("/test", test);
 app.use("/authen", authen);
 app.use("/booking", book);
-app.use("/payment", payment);
+app.use("/payment", payment.router);
 
 // db.connect(function (err) {
 //     if (err) {

@@ -12,4 +12,18 @@ const db = mysql.createConnection({
   ssl: { ca: fs.readFileSync("DigiCertGlobalRootCA.crt.pem") },
 });
 
+// function sqlQuery(sql, val) {
+//   db.query(sql, val, (err, result) => {
+//     if (!err) {
+//       return result;
+//       //res.send(200, "Deleted vehicle already");
+//       //res.redirect(201, '/');
+//     } else {
+//       console.log(err);
+//       //res.send(500, err);
+//       return err;
+//     }
+//   })
+// }
+
 module.exports = db;

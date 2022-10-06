@@ -4,6 +4,7 @@ const db = require("../config/db");
 const upload = require("../storage/multer");
 const blob = require("../storage/blobCar");
 const userMiddleware = require("../middleware/user");
+const payment = require("../routes/payment");
 const fs = require("fs");
 
 router.get("/getAll", userMiddleware.isLoggedIn, (req, res) => {
@@ -26,7 +27,7 @@ router.post("/upload", upload.single("file"), async (req, res) => {
     fs.unlink(simpleFile.path, (err) => {
       if (err) throw err;
       // if no error, file has been deleted successfully
-      console.log("File deleted!");
+      console.log("Local file deleted!");
     });
   } catch (error) {
     console.log(error);

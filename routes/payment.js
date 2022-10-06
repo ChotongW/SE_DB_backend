@@ -16,11 +16,6 @@ router.use(
 
 router.get("/admin", userMiddleware.isLoggedIn, (req, res) => {
   //let vehicle_id = req.query.vehicleId;
-  /*
-    if (vehicle_id == null){
-        
-    }
-    */
   //console.log(vehicle_id);
   var sql = "SELECT * FROM billing";
   db.query(sql, (err, result) => {
@@ -51,4 +46,44 @@ router.post(
   }
 );
 
-module.exports = router;
+function createBill(cost, id_no) {
+  console.log(cost);
+  console.log(id_no);
+  var id = uuid.v4();
+  var tax_amount = cost * 0.07;
+  var total_amount = cost + tax_amount;
+  var sql =
+    "INSERT INTO billing (bill_id, bill_status, amount_balance, total_amount, tax_amount) VALUES (?, ?, ?, ?, ?)";
+  db.query(
+    sql,
+    [id, "pending", cost, total_amount, tax_amount],
+    (err, result) => {
+      if (!err) {
+        return { message: "billed already" };
+        //res.redirect(201, '/');
+      } else {
+        console.log(err);
+        return { message: err };
+      }
+    }
+  );
+
+  var sql = "UPDATE customer \
+    SET bill_id = ? \
+    WHERE id_no = ?;";
+  db.query(sql, [id, id_no], (err, result) => {
+    if (!err) {
+      console.log({ message: "update customer bill_id already" });
+      //res.send(201, { message: "booked already" });
+      //res.redirect(201, '/');
+    } else {
+      console.log(err);
+      //res.send(500, err);
+    }
+  });
+}
+
+module.exports = {
+  router,
+  createBill,
+};
