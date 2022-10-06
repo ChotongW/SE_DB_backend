@@ -82,6 +82,30 @@ router.put(
   }
 );
 
+router.put("/admin/approve", userMiddleware.isLoggedIn, (req, res) => {
+  //ส่ง bill_id กลับมาด้วยนะ *** เป็น form-data นะ ***
+  let bill_id = req.body.bill_id;
+  //let booking_status = req.booking_status;
+  if (bill_id == null) {
+    res.send({
+      status: "incompleted",
+      message: "No bill found or bill id is null.",
+    });
+  }
+  var sql = "UPDATE billing \
+    SET bill_status =  ? \
+    WHERE bill_id = ?;";
+  db.query(sql, ["complete", bill_id], (err, result) => {
+    if (!err) {
+      res.send(201, { response: "bill update already" });
+      //res.redirect(201, '/');
+    } else {
+      console.log(err);
+      res.send(500, { response: err });
+    }
+  });
+});
+
 function createBill(cost, id_no) {
   console.log(cost);
   console.log(id_no);
