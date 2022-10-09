@@ -5,6 +5,7 @@ const test = require("./routes/test");
 const authen = require("./routes/authen");
 const book = require("./routes/booking");
 const payment = require("./routes/payment");
+const user = require("./routes/user");
 const db = require("./config/db");
 
 const cors = require("cors");
@@ -23,6 +24,7 @@ app.use("/test", test);
 app.use("/authen", authen);
 app.use("/booking", book);
 app.use("/payment", payment.router);
+app.use("/user", user);
 
 // db.connect(function (err) {
 //     if (err) {

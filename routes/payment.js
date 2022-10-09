@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 const queryDB = require("../config/db");
 const upload = require("../storage/multer");
 const blob = require("../storage/blobPayment");
-const userMiddleware = require("../middleware/user");
+const userMiddleware = require("../middleware/role");
 const fs = require("fs");
 var uuid = require("uuid");
 

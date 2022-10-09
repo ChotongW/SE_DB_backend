@@ -12,7 +12,7 @@ const db = mysql.createConnection({
   ssl: { ca: fs.readFileSync("DigiCertGlobalRootCA.crt.pem") },
 });
 
-const queryDB = (sql, params, doErr, doSucc) => {
+const queryDB = async (sql, params, doErr, doSucc) => {
   db.query(sql, params, (err, result) => {
     if (!err) {
       doSucc(result);

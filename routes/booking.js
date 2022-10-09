@@ -1,9 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const queryDB = require("../config/db");
-const upload = require("../storage/multer");
-const blob = require("../storage/blobCar");
-const userMiddleware = require("../middleware/user");
+const userMiddleware = require("../middleware/role");
 const payment = require("../routes/payment");
 var uuid = require("uuid");
 

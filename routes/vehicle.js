@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 const queryDB = require("../config/db");
 const upload = require("../storage/multer");
 const blob = require("../storage/blobCar");
-const userMiddleware = require("../middleware/user");
+const userMiddleware = require("../middleware/role");
 const fs = require("fs");
 
 router = express.Router();
@@ -158,37 +158,6 @@ router.post(
         //res.redirect(201, '/');
       }
     );
-    // var sql =
-    //   "INSERT INTO vehicles (vehicle_id, name,  brand, year, cost, availability, type_id, vehicle_img, description, review) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    // db.query(
-    //   sql,
-    //   [
-    //     vehicle_id,
-    //     carName,
-    //     brand,
-    //     year,
-    //     price,
-    //     1,
-    //     vehicle_type,
-    //     callback,
-    //     description,
-    //     review,
-    //   ],
-    //   (err, result) => {
-    //     if (!err) {
-    //       res.send(201, { response: "Created vehicle already" });
-    //       //res.redirect(201, '/');
-    //     } else {
-    //       console.log(err);
-    //       res.send(500, { response: err });
-    //     }
-    //   }
-    // );
-    //   fs.unlink(simpleFile.path, (err) => {
-    //     if (err) throw err;
-    //     // if no error, file has been deleted successfully
-    //     console.log('File deleted!');
-    // // });
   }
 );
 
@@ -200,21 +169,18 @@ router.delete("/id", userMiddleware.isLoggedIn, (req, res) => {
       message: "You must have car ID.",
     });
   }
-  var sql = "DELETE FROM vehicels WHERE vehicle_id = ?;";
-  db.query(sql, vehicle_id, (err, result) => {
-    if (!err) {
-      res.send(200, "Deleted vehicle already");
-      //res.redirect(201, '/');
-    } else {
+  queryDB(
+    "DELETE FROM vehicels WHERE vehicle_id = ?",
+    vehicle_id,
+    (err) => {
       console.log(err);
       res.send(500, err);
+    },
+    () => {
+      //res.redirect(201, "/");
+      res.send({ message: "Deleted vehicle already" }, 200);
     }
-  });
-  //   fs.unlink(simpleFile.path, (err) => {
-  //     if (err) throw err;
-  //     // if no error, file has been deleted successfully
-  //     console.log('File deleted!');
-  // // });
+  );
 });
 
 module.exports = router;

@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const queryDB = require("../config/db");
-const userMiddleware = require("../middleware/user.js");
+const userMiddleware = require("../middleware/role");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
