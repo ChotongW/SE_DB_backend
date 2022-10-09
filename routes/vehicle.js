@@ -1,6 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const db = require("../config/db");
+const queryDB = require("../config/db");
 const upload = require("../storage/multer");
 const blob = require("../storage/blobCar");
 const userMiddleware = require("../middleware/user");
@@ -15,40 +15,32 @@ router.use(
 );
 
 router.get("/", (req, res) => {
-  var sql = "SELECT * FROM vehicles";
-  db.query(sql, (err, result) => {
-    if (err) throw (err, res.status(500).send(err, 500));
-    //console.log(rows);
-    res.send(result);
-  });
+  queryDB(
+    "SELECT * FROM vehicles",
+    undefined,
+    (err) => {
+      //console.log(err);
+      throw (err, res.send(err, 500));
+    },
+    (result) => {
+      res.send(result);
+    }
+  );
 });
 
 router.get("/id", (req, res) => {
   let vehicle_id = req.query.vehicleId;
-  /*
-    if (vehicle_id == null){
-        
+  queryDB(
+    "SELECT * FROM vehicles WHERE vehicle_id = ?",
+    vehicle_id,
+    (err) => {
+      //console.log(err);
+      throw (err, res.send(err, 500));
+    },
+    (result) => {
+      res.send(result);
     }
-    */
-  //console.log(vehicle_id);
-  var sql = "SELECT * FROM vehicles WHERE vehicle_id = ?";
-  db.query(sql, vehicle_id, (err, result, fields) => {
-    if (err) throw (err, res.status(500).send(err));
-    //console.log(rows);
-    res.send(result);
-  });
-
-  // router.get("/vehicle/", cors(), function(req, res) {
-  //     let vehicle_id = req.query.vehicleId;
-  //     let name = req.query.name;
-
-  //     var sql = "SELECT * FROM vehicles WHERE vehicle_id = ? AND name >= ?";
-  //     db.query(sql, [ vehicle_id, name ], function(err, rows, fields) {
-  //     if (err) throw err;
-  //     //console.log(rows);
-  //     res.send((result));
-  //     });
-  //   });
+  );
 });
 
 router.put(
@@ -76,16 +68,28 @@ router.put(
     //console.log(upload_res);
 
     //mysql store url
-    var sql = "UPDATE vehicles SET vehicle_img = ? where vehicle_id = ?";
-    db.query(sql, [callback, vehicle_id], (err, result) => {
-      if (!err) {
-        //res.redirect('/');
-        res.redirect(201, "/");
-      } else {
-        console.log(err);
-        res.status(500).send(err);
+    queryDB(
+      "UPDATE vehicles SET vehicle_img = ? where vehicle_id = ?",
+      [callback, vehicle_id],
+      (err) => {
+        //console.log(err);
+        throw (err, res.send(err, 500));
+      },
+      () => {
+        //res.redirect(201, "/");
+        res.send({ message: "update img already" });
       }
-    });
+    );
+    // var sql = "UPDATE vehicles SET vehicle_img = ? where vehicle_id = ?";
+    // db.query(sql, [callback, vehicle_id], (err, result) => {
+    //   if (!err) {
+    //     //res.redirect('/');
+    //     res.redirect(201, "/");
+    //   } else {
+    //     console.log(err);
+    //     res.status(500).send(err);
+    //   }
+    // });
   }
 );
 
@@ -129,10 +133,10 @@ router.post(
       // if no error, file has been deleted successfully
       console.log("Local file deleted!");
     });
-    var sql =
-      "INSERT INTO vehicles (vehicle_id, name,  brand, year, cost, availability, type_id, vehicle_img, description, review) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    db.query(
-      sql,
+
+    queryDB(
+      "INSERT INTO vehicles (vehicle_id, name,  brand, year, cost, availability, type_id, vehicle_img, description, review) \
+      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [
         vehicle_id,
         carName,
@@ -145,16 +149,41 @@ router.post(
         description,
         review,
       ],
-      (err, result) => {
-        if (!err) {
-          res.send(201, { response: "Created vehicle already" });
-          //res.redirect(201, '/');
-        } else {
-          console.log(err);
-          res.send(500, { response: err });
-        }
+      (err) => {
+        console.log(err);
+        res.send(500, { response: err });
+      },
+      () => {
+        res.send(201, { response: "Created vehicle already" });
+        //res.redirect(201, '/');
       }
     );
+    // var sql =
+    //   "INSERT INTO vehicles (vehicle_id, name,  brand, year, cost, availability, type_id, vehicle_img, description, review) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    // db.query(
+    //   sql,
+    //   [
+    //     vehicle_id,
+    //     carName,
+    //     brand,
+    //     year,
+    //     price,
+    //     1,
+    //     vehicle_type,
+    //     callback,
+    //     description,
+    //     review,
+    //   ],
+    //   (err, result) => {
+    //     if (!err) {
+    //       res.send(201, { response: "Created vehicle already" });
+    //       //res.redirect(201, '/');
+    //     } else {
+    //       console.log(err);
+    //       res.send(500, { response: err });
+    //     }
+    //   }
+    // );
     //   fs.unlink(simpleFile.path, (err) => {
     //     if (err) throw err;
     //     // if no error, file has been deleted successfully

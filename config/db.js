@@ -12,6 +12,15 @@ const db = mysql.createConnection({
   ssl: { ca: fs.readFileSync("DigiCertGlobalRootCA.crt.pem") },
 });
 
+const queryDB = (sql, params, doErr, doSucc) => {
+  db.query(sql, params, (err, result) => {
+    if (!err) {
+      doSucc(result);
+    } else {
+      doErr(err);
+    }
+  });
+};
 // function sqlQuery(sql, val) {
 //   db.query(sql, val, (err, result) => {
 //     if (!err) {
@@ -26,4 +35,4 @@ const db = mysql.createConnection({
 //   })
 // }
 
-module.exports = db;
+module.exports = queryDB;

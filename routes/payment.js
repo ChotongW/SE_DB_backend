@@ -1,6 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const db = require("../config/db");
+const queryDB = require("../config/db");
 const upload = require("../storage/multer");
 const blob = require("../storage/blobPayment");
 const userMiddleware = require("../middleware/user");
@@ -15,16 +15,20 @@ router.use(
   })
 );
 
-router.get("/admin", userMiddleware.isLoggedIn, (req, res) => {
+router.get("/admin", userMiddleware.isAdmin, (req, res) => {
   //let vehicle_id = req.query.vehicleId;
   //console.log(vehicle_id);
-  var sql = "SELECT * FROM billing";
-  db.query(sql, (err, result) => {
-    if (err) throw (err, res.status(500).send(err));
-    //console.log(rows);
-    res.send(result);
-  });
-
+  queryDB(
+    "SELECT * FROM billing",
+    undefined,
+    (err) => {
+      //console.log(err);
+      throw (err, res.send(err, 500));
+    },
+    (result) => {
+      res.send(result);
+    }
+  );
   // router.get("/vehicle/", cors(), function(req, res) {
   //     let vehicle_id = req.query.vehicleId;
   //     let name = req.query.name;

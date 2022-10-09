@@ -1,5 +1,6 @@
 // middleware/users.js
 const jwt = require("jsonwebtoken");
+const queryDB = require("../config/db");
 
 module.exports = {
   validateRegister: (req, res, next) => {
@@ -37,6 +38,38 @@ module.exports = {
       //   console.log(decoded);
       req.userData = decoded;
       next();
+    } catch (err) {
+      return res.status(401).send({
+        msg: "Your session is not valid!",
+      });
+    }
+    next();
+  },
+
+  isAdmin: (req, res, next) => {
+    try {
+      const token = req.headers.authorization.split(" ")[1];
+      const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+      //   console.log(token);
+      //console.log(decoded);
+      queryDB(
+        "SELECT email FROM admin WHERE email = ?",
+        decoded.email,
+        (err) => {
+          //console.log(err);
+          return err, res.send(err, 500);
+        },
+        (result) => {
+          if (result.length === 0) {
+            return res.status(401).send({
+              msg: "Restricted access denied",
+            });
+          } else {
+            req.userData = decoded;
+            next();
+          }
+        }
+      );
     } catch (err) {
       return res.status(401).send({
         msg: "Your session is not valid!",
