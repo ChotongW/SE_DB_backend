@@ -1,4 +1,0 @@
-{
-  "appService.defaultWebAppToDeploy": "/subscriptions/f182f87b-6b08-4d5d-854a-f33205120248/AppServices/subscriptions/f182f87b-6b08-4d5d-854a-f33205120248/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/sites/carleasing",
-  "appService.deploySubpath": "."
-}
