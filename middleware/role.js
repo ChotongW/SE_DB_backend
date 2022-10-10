@@ -52,8 +52,8 @@ module.exports = {
       //   console.log(token);
       //console.log(decoded);
       queryDB(
-        "SELECT email FROM admin WHERE email = ?",
-        decoded.email,
+        "SELECT id_no FROM admin WHERE id_no = ?",
+        decoded.id,
         (err) => {
           //console.log(err);
           return err, res.send(err, 500);

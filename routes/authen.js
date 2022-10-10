@@ -49,7 +49,8 @@ const doSignUp = (req, res) => {
 };
 // routes/router.js
 
-function verify(result, password, email, res) {
+function verify(result, password, res) {
+  var id = result[0].id_no;
   // check password
   passFromDB = JSON.parse(JSON.stringify(result))[0].password;
   bcrypt.compare(password, passFromDB, (bErr, bResult) => {
@@ -67,7 +68,7 @@ function verify(result, password, email, res) {
     if (bResult) {
       const token = jwt.sign(
         {
-          email: email.toLowerCase(),
+          id: id,
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
@@ -78,7 +79,7 @@ function verify(result, password, email, res) {
       return res.status(200).send({
         msg: "Logged in!",
         token,
-        user: email.toLowerCase(),
+        user: id,
       });
     }
     return res.status(401).send({
@@ -92,7 +93,7 @@ router.post("/sign-up", userMiddleware.validateRegister, (req, res, next) => {
 
   queryDB(
     "SELECT * FROM customer WHERE LOWER(email) = ?",
-    email.toLowerCase(),
+    email,
     (err) => {
       return res.status(500).send({
         msg: "Interval server error",
@@ -117,7 +118,7 @@ router.post("/login", (req, res) => {
   let password = req.body.password;
 
   queryDB(
-    "SELECT password FROM customer WHERE LOWER(email) = ?",
+    "SELECT password,id_no FROM customer WHERE LOWER(email) = ?",
     email,
     (err) => {
       return res.status(400).send({
@@ -131,7 +132,7 @@ router.post("/login", (req, res) => {
         });
       }
       // check password
-      verify(result, password, email, res);
+      verify(result, password, res);
     }
   );
 });
@@ -141,7 +142,7 @@ router.post("/admin/login", (req, res) => {
   let password = req.body.password;
 
   queryDB(
-    "SELECT password FROM admin WHERE LOWER(email) = ?",
+    "SELECT password,id_no FROM admin WHERE LOWER(email) = ?",
     email,
     (err) => {
       return res.status(400).send({
@@ -155,7 +156,7 @@ router.post("/admin/login", (req, res) => {
         });
       }
       // check password
-      verify(result, password, email, res);
+      verify(result, password, res);
     }
   );
 });

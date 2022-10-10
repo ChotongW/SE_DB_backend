@@ -28,14 +28,16 @@ router.get("/", (req, res) => {
   );
 });
 
-router.get("/id", (req, res) => {
+router.get("/:id", (req, res) => {
+  //รับเป็น query params นะ
   let vehicle_id = req.query.vehicleId;
+  //console.log(vehicle_id);
   queryDB(
     "SELECT * FROM vehicles WHERE vehicle_id = ?",
     vehicle_id,
     (err) => {
-      //console.log(err);
-      throw (err, res.send(err, 500));
+      console.log(err);
+      res.send(err, 500);
     },
     (result) => {
       res.send(result);
@@ -45,7 +47,7 @@ router.get("/id", (req, res) => {
 
 router.put(
   "/image",
-  userMiddleware.isLoggedIn,
+  userMiddleware.isAdmin,
   upload.single("file"),
   async (req, res) => {
     let vehicle_id = req.query.vehicleId;
