@@ -64,10 +64,14 @@ router.put(
       price == null ||
       vehicle_type == null
     ) {
-      res.send({
-        status: "incompleted",
-        message: "You have some fields unfilled.",
-      });
+      res.send(
+        {
+          status: "incompleted",
+          message: "You have some fields unfilled.",
+        },
+        400
+      );
+      return 0;
     }
     //console.log(simpleFile);
     let brand = carModel.split(" ")[0];
@@ -140,11 +144,21 @@ router.post(
     let vehicle_type = parseInt(req.body.typeId, 10);
     let simpleFile = req.file;
     //let booking_status = req.booking_status;
-    if (carModel == null || vehicle_id == null || price == null) {
-      res.send({
-        status: "incompleted",
-        message: "You have some fields unfilled.",
-      });
+    if (
+      carModel == null ||
+      vehicle_id == null ||
+      price == null ||
+      vehicle_type == null ||
+      simpleFile == null
+    ) {
+      res.send(
+        {
+          status: "incompleted",
+          message: "You have some fields unfilled.",
+        },
+        400
+      );
+      return 0;
     }
     //console.log(simpleFile);
     let brand = carModel.split(" ")[0];
