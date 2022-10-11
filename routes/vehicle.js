@@ -103,7 +103,7 @@ router.put(
         brand,
         year,
         price,
-        type_id,
+        vehicle_type,
         description,
         review,
         vehicle_id,
