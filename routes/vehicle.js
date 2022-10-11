@@ -102,7 +102,7 @@ router.put(
         carName,
         brand,
         year,
-        cost,
+        price,
         type_id,
         description,
         review,
