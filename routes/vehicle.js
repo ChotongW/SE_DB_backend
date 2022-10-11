@@ -46,12 +46,33 @@ router.get("/:id", (req, res) => {
 });
 
 router.put(
-  "/image",
+  "/edit",
   userMiddleware.isAdmin,
   upload.single("file"),
   async (req, res) => {
-    let vehicle_id = req.query.vehicleId;
+    let vehicle_id = req.body.carId;
+    let carModel = req.body.carName;
+    let description = req.body.description;
+    let review = req.body.review;
+    let price = parseInt(req.body.price, 10);
+    let vehicle_type = parseInt(req.body.typeId, 10);
     let simpleFile = req.file;
+
+    if (
+      carModel == null ||
+      vehicle_id == null ||
+      price == null ||
+      vehicle_type == null
+    ) {
+      res.send({
+        status: "incompleted",
+        message: "You have some fields unfilled.",
+      });
+    }
+    //console.log(simpleFile);
+    let brand = carModel.split(" ")[0];
+    let carName = carModel.split(" ")[1];
+    let year = carModel.split(" ")[2];
 
     //upload to storage account
     try {
@@ -71,8 +92,18 @@ router.put(
 
     //mysql store url
     queryDB(
-      "UPDATE vehicles SET vehicle_img = ? where vehicle_id = ?",
-      [callback, vehicle_id],
+      "UPDATE vehicles SET vehicle_img = ?, name = ?, brand = ?, year = ?, cost = ?, type_id = ?, description  = ?, review = ? where vehicle_id = ?",
+      [
+        callback,
+        carName,
+        brand,
+        year,
+        cost,
+        type_id,
+        description,
+        review,
+        vehicle_id,
+      ],
       (err) => {
         //console.log(err);
         throw (err, res.send(err, 500));
