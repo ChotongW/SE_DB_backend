@@ -16,7 +16,7 @@ router.use(
 
 router.get("/", (req, res) => {
   queryDB(
-    "SELECT * FROM vehicles",
+    "SELECT * FROM vehicles WHERE availability != 0",
     undefined,
     (err) => {
       //console.log(err);
