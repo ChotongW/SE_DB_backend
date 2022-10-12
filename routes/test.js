@@ -1,6 +1,6 @@
 const express = require("express");
 router = express.Router();
-const db = require("../config/db");
+const queryDB = require("../config/db");
 const upload = require("../storage/multer");
 const blob = require("../storage/blobCar");
 const userMiddleware = require("../middleware/role");
@@ -8,11 +8,18 @@ const payment = require("../routes/payment");
 const fs = require("fs");
 
 router.get("/getAll", userMiddleware.isLoggedIn, (req, res) => {
-  db.query("SELECT * FROM vehicles", (err, result) => {
-    if (err) throw (err, res.status(500).send(err, 500));
-    //console.log(rows);
-    res.send(result);
-  });
+  console.log(req.userData.id);
+  queryDB(
+    "SELECT * FROM vehicles",
+    undefined,
+    (err) => {
+      //console.log(err);
+      throw (err, res.send(err, 500));
+    },
+    (result) => {
+      res.send(result);
+    }
+  );
 });
 
 router.post("/upload", upload.single("file"), async (req, res) => {

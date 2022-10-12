@@ -13,26 +13,58 @@ router.use(
   })
 );
 
-router.get("/profile", userMiddleware.isLoggedIn, (req, res) => {
-  let email = req.body.email;
+const doReturnProfile = (id, userProf, res) => {
+  const today = new Date();
+  const day = today.getDate() - 1;
   queryDB(
-    "SELECT * FROM customer where email = ?",
-    email,
+    "SELECT end_date FROM booking where id_no = ?",
+    id,
     (err) => {
       //console.log(err);
       res.send(err, 500);
     },
     (result) => {
-      res.send(result, 200);
+      var date = parseInt(
+        JSON.stringify(result[0].end_date).split("-")[2].slice(0, 2),
+        10
+      );
+      var summary = date - day;
+      userProf["daylefts"] = summary;
+      //console.log(result[0].daylefts);
+      res.status(200).send(userProf);
+    }
+  );
+};
+
+router.get("/profile", userMiddleware.isLoggedIn, (req, res) => {
+  let id = req.userData.id;
+  queryDB(
+    "SELECT * FROM customer where id_no = ?",
+    id,
+    (err) => {
+      //console.log(err);
+      res.send(err, 500);
+    },
+    (result) => {
+      if (result[0] === undefined) {
+        res.send(
+          {
+            message: "No user found.",
+          },
+          400
+        );
+      }
+      doReturnProfile(id, result[0], res);
+      //res.send(result[0], 200);
     }
   );
 });
 
 router.get("/payment", userMiddleware.isLoggedIn, async (req, res) => {
-  let email = req.body.email;
+  let id = req.userData.id;
   await queryDB(
-    "SELECT bill_id FROM customer where email = ?",
-    email.toLowerCase(),
+    "SELECT bill_id FROM customer where id_no = ?",
+    id,
     (err) => {
       //console.log(err);
       throw (err, res.send(err, 500));
