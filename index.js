@@ -6,6 +6,7 @@ const authen = require("./routes/authen");
 const book = require("./routes/booking");
 const payment = require("./routes/payment");
 const user = require("./routes/user");
+const insurance = require("./routes/insurance");
 const db = require("./config/db");
 const port = process.env.PORT || 5500;
 
@@ -26,6 +27,7 @@ app.use("/authen", authen);
 app.use("/booking", book);
 app.use("/payment", payment.router);
 app.use("/user", user);
+app.use("/insurance", insurance);
 
 // db.connect(function (err) {
 //     if (err) {
