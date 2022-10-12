@@ -19,7 +19,7 @@ router.get("/admin", userMiddleware.isAdmin, (req, res) => {
   //let vehicle_id = req.query.vehicleId;
   //console.log(vehicle_id);
   queryDB(
-    "SELECT * FROM billing",
+    "SELECT * FROM billing WHERE bill_status = verification",
     undefined,
     (err) => {
       //console.log(err);
@@ -72,8 +72,8 @@ router.put(
       console.log("Local file deleted!");
     });
     queryDB(
-      "UPDATE billing SET slip =  ? WHERE bill_id = ?;",
-      [callback, bill_id],
+      "UPDATE billing SET slip =  ?, bill_status = ? WHERE bill_id = ?;",
+      [callback, "verification", bill_id],
       (err) => {
         console.log(err);
         res.send(500, { response: err });
