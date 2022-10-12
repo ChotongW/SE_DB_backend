@@ -12,6 +12,9 @@ const port = process.env.PORT || 5500;
 
 const cors = require("cors");
 const bodyParser = require("body-parser");
+var morgan = require("morgan");
+// create "morgan middleware"
+app.use(morgan("common"));
 
 app.use(cors());
 app.use(express.json());
