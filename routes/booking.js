@@ -115,7 +115,7 @@ router.put("/return", userMiddleware.isLoggedIn, (req, res) => {
           console.log(err);
         },
         () => {
-          console.log({ message: "delete booking already" });
+          console.log({ message: "update status finished booking already" });
         }
       );
       res.send(200, { message: "return car already" });

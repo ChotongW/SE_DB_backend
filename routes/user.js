@@ -54,4 +54,36 @@ router.get("/payment", userMiddleware.isLoggedIn, async (req, res) => {
   );
 });
 
+router.put("/edit", userMiddleware.isLoggedIn, async (req, res) => {
+  let id = req.body.customerId;
+  let fname = req.body.customerFname;
+  let lname = req.body.customerLname;
+  let phone = req.body.phone;
+
+  if (id == null || fname == null || lname == null || phone == null) {
+    res.send(
+      {
+        status: "incompleted",
+        message: "You have some fields unfilled.",
+      },
+      400
+    );
+    return 0;
+  }
+
+  //mysql store url
+  queryDB(
+    "UPDATE customer SET fname = ?, lname = ?, phone = ? where id_no = ?",
+    [fname, lname, phone, id],
+    (err) => {
+      //console.log(err);
+      throw (err, res.send(err, 500));
+    },
+    () => {
+      //res.redirect(201, "/");
+      res.send({ message: "update profile already" });
+    }
+  );
+});
+
 module.exports = router;
