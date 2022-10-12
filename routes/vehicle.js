@@ -36,8 +36,7 @@ router.get("/:id", (req, res) => {
     "SELECT * FROM vehicles WHERE vehicle_id = ?",
     vehicle_id,
     (err) => {
-      console.log(err);
-      res.send(err, 500);
+      throw (err, res.send(err, 500));
     },
     (result) => {
       res.send(result);

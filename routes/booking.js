@@ -32,8 +32,8 @@ const doInsertBooking = (req) => {
   var id = uuid.v4();
 
   queryDB(
-    "INSERT INTO booking (book_id, vehicle_id, id_no, in_id, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?)",
-    [id, vehicle_id, id_no, insurance, start_date, end_date],
+    "INSERT INTO booking (book_id, vehicle_id, id_no, in_id, start_date, end_date, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
+    [id, vehicle_id, id_no, insurance, start_date, end_date, "current"],
     (err) => {
       console.log(err);
       res.send(500, err);
@@ -58,7 +58,9 @@ const doInsertBooking = (req) => {
   queryDB(
     "SELECT cost FROM vehicles WHERE vehicle_id = ?",
     vehicle_id,
-    () => {},
+    (err) => {
+      console.log(err);
+    },
     (result) => {
       var cost = result[0].cost;
       var diffDays =
@@ -93,78 +95,32 @@ router.post("/book", userMiddleware.isLoggedIn, (req, res) => {
       }
     }
   );
-
-  // var sql = "SELECT availability FROM vehicles WHERE vehicle_id = ?";
-  // db.query(sql, vehicle_id, (err, result) => {
-  //   if (!err) {
-  //     var availability = result[0].availability;
-
-  //     if (availability === 0) {
-  //       res.send({ message: "this car is booked already" });
-  //     } else {
-  //       var sql =
-  //         "INSERT INTO booking (book_id, vehicle_id, id_no, in_id, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?)";
-  //       db.query(
-  //         sql,
-  //         [id, vehicle_id, id_no, insurance, start_date, end_date],
-  //         (err, result) => {
-  //           if (!err) {
-  //             res.send(201, { message: "booked already" });
-  //             //res.redirect(201, '/');
-  //           } else {
-  //             console.log(err);
-  //             res.send(500, err);
-  //           }
-  //         }
-  //       );
-
-  //       var sql = "UPDATE vehicles SET availability = ? where vehicle_id = ?";
-  //       db.query(sql, [0, vehicle_id], (err, result) => {
-  //         if (!err) {
-  //           console.log({ message: "update already" });
-  //         } else {
-  //           console.log(err);
-  //         }
-  //       });
-
-  //       var sql = "SELECT cost FROM vehicles WHERE vehicle_id = ?";
-  //       db.query(sql, vehicle_id, (err, result) => {
-  //         var cost = result[0].cost;
-  //         var diffDays =
-  //           parseInt(end_date.split("-")[2], 10) -
-  //           parseInt(start_date.split("-")[2], 10);
-  //         var total_amount = diffDays * cost;
-  //         //console.log(total_amount);
-  //         const response = payment.createBill(total_amount, id_no);
-  //         //console.log("complete");
-  //       });
-  //     }
-  //   } else {
-  //     console.log(err);
-  //     res.send(500, { message: err });
-  //   }
-  // });
 });
 
 router.put("/return", userMiddleware.isLoggedIn, (req, res) => {
   let vehicle_id = req.body.carId;
 
-  var sql = "UPDATE vehicles SET availability = ? where vehicle_id = ?";
-  db.query(sql, [1, vehicle_id], (err, result) => {
-    if (!err) {
-      var sql = "DELETE FROM booking WHERE vehicle_id = ?;";
-      db.query(sql, [vehicle_id], (err, result) => {
-        if (!err) {
-          console.log({ message: "delete booking already" });
-        } else {
-          console.log(err);
-        }
-      });
-      res.send(200, { message: "return car already" });
-    } else {
+  queryDB(
+    "UPDATE vehicles SET availability = ? where vehicle_id = ?",
+    [1, vehicle_id],
+    (err) => {
       res.send(500, { message: err });
+    },
+    () => {
+      queryDB(
+        "UPDATE booking SET status = ? where vehicle_id = ?",
+        ["finished", vehicle_id],
+        (err) => {
+          // if error does below
+          console.log(err);
+        },
+        () => {
+          console.log({ message: "delete booking already" });
+        }
+      );
+      res.send(200, { message: "return car already" });
     }
-  });
+  );
 });
 
 module.exports = router;
