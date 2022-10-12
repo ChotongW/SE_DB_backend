@@ -41,4 +41,37 @@ router.get("/admin", userMiddleware.isAdmin, (req, res) => {
   );
 });
 
+router.post("/", userMiddleware.isLoggedIn, async (req, res) => {
+  //console.log(req.body);
+  let name = req.body.insurance_name;
+  let info = req.body.insurance_info;
+  let insu_class = req.body.insurance_class;
+  let cost = parseInt(req.body.insurance_price, 10);
+  var id = uuid.v4();
+  //let booking_status = req.booking_status;
+  if (name == null || insu_class == null || cost == null) {
+    res.send(
+      {
+        status: "incompleted",
+        message: "You have some fields unfilled.",
+      },
+      400
+    );
+    return 0;
+  }
+  queryDB(
+    "INSERT INTO insurance (in_id, name,  info, class, cost) \
+        VALUES(?, ?, ?, ?, ?)",
+    [id, name, info, insu_class, cost],
+    (err) => {
+      console.log(err);
+      res.send(500, { response: err });
+    },
+    () => {
+      res.send(201, { response: "Created insurance already" });
+      //res.redirect(201, '/');
+    }
+  );
+});
+
 module.exports = router;
