@@ -13,34 +13,28 @@ router.use(
   })
 );
 
-router.get("/", userMiddleware.isLoggedIn, (req, res) => {
-  queryDB(
-    "SELECT * FROM insurance",
-    undefined,
-    (err) => {
-      //console.log(err);
-      res.send(err, 500);
-      throw err;
-    },
-    (result) => {
-      res.send(result);
-    }
-  );
+router.get("/", userMiddleware.isLoggedIn, async (req, res) => {
+  var sql = "SELECT * FROM insurance";
+  try {
+    var result = await queryDB(sql, undefined);
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+    res.send(500, { message: err });
+    return;
+  }
 });
 
-router.get("/admin", userMiddleware.isAdmin, (req, res) => {
-  queryDB(
-    "SELECT * FROM insurance",
-    undefined,
-    (err) => {
-      //console.log(err);
-      res.send(err, 500);
-      throw err;
-    },
-    (result) => {
-      res.send(result);
-    }
-  );
+router.get("/admin", userMiddleware.isAdmin, async (req, res) => {
+  var sql = "SELECT * FROM insurance";
+  try {
+    var result = await queryDB(sql, undefined);
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+    res.send(500, { message: err });
+    return;
+  }
 });
 
 router.post("/add", userMiddleware.isAdmin, async (req, res) => {
@@ -59,24 +53,22 @@ router.post("/add", userMiddleware.isAdmin, async (req, res) => {
       },
       400
     );
-    return 0;
+    return;
   }
-  queryDB(
+  var sql =
     "INSERT INTO insurance (in_id, name,  info, class, cost) \
-        VALUES(?, ?, ?, ?, ?)",
-    [id, name, info, insu_class, cost],
-    (err) => {
-      console.log(err);
-      res.send(500, { response: err });
-    },
-    () => {
-      res.send(201, { response: "Created insurance already" });
-      //res.redirect(201, '/');
-    }
-  );
+  VALUES(?, ?, ?, ?, ?)";
+  try {
+    var result = await queryDB(sql, [id, name, info, insu_class, cost]);
+    res.send(201, { response: "Created insurance already" });
+  } catch (err) {
+    console.log(err);
+    res.send(500, { message: err });
+    return;
+  }
 });
 
-router.put("/edit", userMiddleware.isAdmin, (req, res) => {
+router.put("/edit", userMiddleware.isAdmin, async (req, res) => {
   let id = req.body.insurance_id;
   let name = req.body.insurance_name;
   let info = req.body.insurance_info;
@@ -91,41 +83,41 @@ router.put("/edit", userMiddleware.isAdmin, (req, res) => {
       },
       400
     );
-    return 0;
-  }
-  queryDB(
-    "UPDATE insurance SET name = ? info = ? class = ? cost = ? where in_id = ?",
-    [name, info, insu_class, cost, id],
-    (err) => {
-      res.send(500, { message: err });
-    },
-    () => {
-      res.send(200, { message: "update insurance already" });
-    }
-  );
-});
-
-router.delete("/delete", userMiddleware.isAdmin, (req, res) => {
-  let id = req.body.insurance_id;
-  if (id == null) {
-    res.send({
-      status: "incompleted",
-      message: "You must have insurance ID.",
-    });
     return;
   }
-  queryDB(
-    "DELETE FROM insurance WHERE in_id = ?",
-    id,
-    (err) => {
-      console.log(err);
-      res.send(500, err);
-    },
-    () => {
-      //res.redirect(201, "/");
-      res.send({ message: "Deleted insurance already" }, 200);
-    }
-  );
+  var sql =
+    "UPDATE insurance SET name = ? info = ? class = ? cost = ? where in_id = ?";
+  try {
+    var result = await queryDB(sql, [name, info, insu_class, cost, id]);
+    res.send(200, { message: "update insurance already" });
+  } catch (err) {
+    console.log(err);
+    res.send(500, { message: err });
+    return;
+  }
+});
+
+router.delete("/delete", userMiddleware.isAdmin, async (req, res) => {
+  let id = req.body.insurance_id;
+  if (id == null) {
+    res.send(
+      {
+        status: "incompleted",
+        message: "You must have insurance ID.",
+      },
+      400
+    );
+    return;
+  }
+  var sql = "DELETE FROM insurance WHERE in_id = ?";
+  try {
+    var result = await queryDB(sql, id);
+    res.send({ message: "Deleted insurance already" }, 200);
+  } catch (err) {
+    console.log(err);
+    res.send(500, { message: err });
+    return;
+  }
 });
 
 module.exports = router;

@@ -45,30 +45,26 @@ module.exports = {
     }
   },
 
-  isAdmin: (req, res, next) => {
+  isAdmin: async (req, res, next) => {
     try {
       const token = req.headers.authorization.split(" ")[1];
       const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
       //   console.log(token);
       //console.log(decoded);
-      queryDB(
-        "SELECT id_no FROM admin WHERE id_no = ?",
-        decoded.id,
-        (err) => {
-          //console.log(err);
-          return err, res.send(err, 500);
-        },
-        (result) => {
-          if (result.length === 0) {
-            return res.status(401).send({
-              msg: "Restricted access denied",
-            });
-          } else {
-            req.userData = decoded;
-            next();
-          }
+      var sql = "SELECT id_no FROM admin WHERE id_no = ?";
+      try {
+        var result = await queryDB(sql, decoded.id);
+        if (result.length === 0) {
+          return res.status(401).send({
+            msg: "Restricted access denied",
+          });
+        } else {
+          req.userData = decoded;
+          next();
         }
-      );
+      } catch (err) {
+        return res.send(500, { message: err });
+      }
     } catch (err) {
       return res.status(401).send({
         msg: "Your session is not valid!",

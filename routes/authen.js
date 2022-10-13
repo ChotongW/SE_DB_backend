@@ -22,7 +22,7 @@ const doSignUp = (req, res) => {
   let phone = req.body.phone;
 
   // username is available
-  bcrypt.hash(password, 10, (err, hash) => {
+  bcrypt.hash(password, 10, async (err, hash) => {
     if (err) {
       return res.status(500).send({
         msg: err,
@@ -30,20 +30,18 @@ const doSignUp = (req, res) => {
     } else {
       // has hashed pw => add to database
 
-      queryDB(
-        "INSERT INTO customer (id_no, fname, lname, email, password, phone ) VALUES (?, ?, ?, ?, ?, ?)",
-        [id, fname, lname, email, hash, phone],
-        (err) => {
-          return res.status(400).send({
-            msg: err,
-          });
-        },
-        () => {
-          return res.status(201).send({
-            msg: "Registered!",
-          });
-        }
-      );
+      var sql =
+        "INSERT INTO customer (id_no, fname, lname, email, password, phone ) VALUES (?, ?, ?, ?, ?, ?)";
+      try {
+        var result = await queryDB(sql, [id, fname, lname, email, hash, phone]);
+        return res.status(201).send({
+          msg: "Registered!",
+        });
+      } catch (err) {
+        return res.status(400).send({
+          msg: err,
+        });
+      }
     }
   });
 };
@@ -88,18 +86,15 @@ function verify(result, password, res) {
   });
 }
 
-router.post("/sign-up", userMiddleware.validateRegister, (req, res, next) => {
-  let email = req.body.email;
+router.post(
+  "/sign-up",
+  userMiddleware.validateRegister,
+  async (req, res, next) => {
+    let email = req.body.email;
 
-  queryDB(
-    "SELECT * FROM customer WHERE LOWER(email) = ?",
-    email,
-    (err) => {
-      return res.status(500).send({
-        msg: "Interval server error",
-      });
-    },
-    (result) => {
+    var sql = "SELECT * FROM customer WHERE LOWER(email) = ?";
+    try {
+      var result = await queryDB(sql, email);
       if (result.length) {
         return res.status(409).send({
           msg: "This email is already in use!",
@@ -107,58 +102,56 @@ router.post("/sign-up", userMiddleware.validateRegister, (req, res, next) => {
       } else {
         doSignUp(req, res);
       }
+    } catch (err) {
+      return res.status(500).send({
+        msg: "Interval server error",
+      });
     }
-  );
-});
+  }
+);
 
 // routes/router.js
 
-router.post("/login", (req, res) => {
+router.post("/login", async (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
 
-  queryDB(
-    "SELECT password,id_no FROM customer WHERE LOWER(email) = ?",
-    email,
-    (err) => {
-      return res.status(400).send({
-        msg: err,
+  var sql = "SELECT password,id_no FROM customer WHERE LOWER(email) = ?";
+  try {
+    var result = await queryDB(sql, email);
+    if (!result.length) {
+      return res.status(401).send({
+        msg: "Username or password is incorrect!",
       });
-    },
-    (result) => {
-      if (!result.length) {
-        return res.status(401).send({
-          msg: "Username or password is incorrect!",
-        });
-      }
-      // check password
-      verify(result, password, res);
     }
-  );
+    // check password
+    verify(result, password, res);
+  } catch (err) {
+    return res.status(400).send({
+      msg: err,
+    });
+  }
 });
 
-router.post("/admin/login", (req, res) => {
+router.post("/admin/login", async (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
 
-  queryDB(
-    "SELECT password,id_no FROM admin WHERE LOWER(email) = ?",
-    email,
-    (err) => {
-      return res.status(400).send({
-        msg: err,
+  var sql = "SELECT password,id_no FROM admin WHERE LOWER(email) = ?";
+  try {
+    var result = await queryDB(sql, email);
+    if (!result.length) {
+      return res.status(401).send({
+        msg: "Username or password is incorrect!",
       });
-    },
-    (result) => {
-      if (!result.length) {
-        return res.status(401).send({
-          msg: "Username or password is incorrect!",
-        });
-      }
-      // check password
-      verify(result, password, res);
     }
-  );
+    // check password
+    verify(result, password, res);
+  } catch (err) {
+    return res.status(400).send({
+      msg: err,
+    });
+  }
 });
 
 module.exports = router;

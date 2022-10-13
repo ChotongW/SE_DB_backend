@@ -15,32 +15,18 @@ router.use(
   })
 );
 
-router.get("/admin", userMiddleware.isAdmin, (req, res) => {
+router.get("/admin", userMiddleware.isAdmin, async (req, res) => {
   //let vehicle_id = req.query.vehicleId;
   //console.log(vehicle_id);
-  queryDB(
-    "SELECT * FROM billing WHERE bill_status = ?",
-    "verification",
-    (err) => {
-      //console.log(err);
-      res.send(err, 500);
-      throw err;
-    },
-    (result) => {
-      res.send(result);
-    }
-  );
-  // router.get("/vehicle/", cors(), function(req, res) {
-  //     let vehicle_id = req.query.vehicleId;
-  //     let name = req.query.name;
-
-  //     var sql = "SELECT * FROM vehicles WHERE vehicle_id = ? AND name >= ?";
-  //     db.query(sql, [ vehicle_id, name ], function(err, rows, fields) {
-  //     if (err) throw err;
-  //     //console.log(rows);
-  //     res.send((result));
-  //     });
-  //   });
+  var sql = "SELECT * FROM billing WHERE bill_status = ?";
+  try {
+    var result = await queryDB(sql, "verification");
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+    res.send(500, { message: err });
+    return;
+  }
 });
 
 router.put(
@@ -53,10 +39,14 @@ router.put(
     let bill_id = req.body.bill_id;
     //let booking_status = req.booking_status;
     if (slip == null) {
-      res.send({
-        status: "incompleted",
-        message: "You should upload payment slip.",
-      });
+      res.send(
+        {
+          status: "incompleted",
+          message: "You should upload payment slip.",
+        },
+        400
+      );
+      return;
     }
     try {
       var callback = await blob.payment_upload(slip);
@@ -66,50 +56,51 @@ router.put(
     } catch (error) {
       console.log(error);
       res.status(500).send("Failure uploading");
+      return;
     }
     fs.unlink(slip.path, (err) => {
       if (err) throw err;
       // if no error, file has been deleted successfully
       console.log("Local file deleted!");
     });
-    queryDB(
-      "UPDATE billing SET slip = ?, bill_status = ? WHERE bill_id = ?;",
-      [callback, "verification", bill_id],
-      (err) => {
-        console.log(err);
-        res.send(500, { response: err });
-      },
-      () => {
-        res.send(201, { response: "upload slip already" });
-      }
-    );
+    var sql = "UPDATE billing SET slip = ?, bill_status = ? WHERE bill_id = ?;";
+    try {
+      var result = await queryDB(sql, [callback, "verification", bill_id]);
+      res.send(201, { response: "upload slip already" });
+    } catch (err) {
+      console.log(err);
+      res.send(500, { message: err });
+      return;
+    }
   }
 );
 
-router.put("/admin/approve", userMiddleware.isAdmin, (req, res) => {
+router.put("/admin/approve", userMiddleware.isAdmin, async (req, res) => {
   //ส่ง bill_id กลับมาด้วยนะ *** เป็น form-data นะ ***
   let bill_id = req.body.bill_id;
   //let booking_status = req.booking_status;
   if (bill_id == null) {
-    res.send({
-      status: "incompleted",
-      message: "No bill found or bill id is null.",
-    });
+    res.send(
+      {
+        status: "incompleted",
+        message: "No bill found or bill id is null.",
+      },
+      400
+    );
+    return;
   }
-  queryDB(
-    "UPDATE billing SET bill_status =  ? WHERE bill_id = ?;",
-    ["complete", bill_id],
-    (err) => {
-      console.log(err);
-      res.send(500, { response: err });
-    },
-    () => {
-      res.send(201, { response: "bill update already" });
-    }
-  );
+  var sql = "UPDATE billing SET bill_status = ? WHERE bill_id = ?;";
+  try {
+    var result = await queryDB(sql, ["complete", bill_id]);
+    res.send(201, { response: "bill update already" });
+  } catch (err) {
+    console.log(err);
+    res.send(500, { message: err });
+    return;
+  }
 });
 
-function createBill(cost, id_no, book_id) {
+async function createBill(cost, id_no, book_id) {
   var id = uuid.v4();
 
   if (id_no == null || cost == null) {
@@ -120,18 +111,23 @@ function createBill(cost, id_no, book_id) {
   var tax_amount = cost * 0.07;
   var total_amount = cost + tax_amount;
 
-  queryDB(
-    "INSERT INTO billing (bill_id, bill_status, book_id, amount_balance, total_amount, tax_amount) VALUES (?, ?, ?, ?, ?)",
-    [id, "pending", book_id, cost, total_amount, tax_amount],
-    (err) => {
-      console.log(err);
-      return { message: err };
-    },
-    () => {
-      console.log({ message: "billed already" });
-      return { message: "billed already" };
-    }
-  );
+  var sql =
+    "INSERT INTO billing (bill_id, bill_status, book_id, amount_balance, total_amount, tax_amount) VALUES (?, ?, ?, ?, ?, ?)";
+  try {
+    var result = await queryDB(sql, [
+      id,
+      "pending",
+      book_id,
+      cost,
+      total_amount,
+      tax_amount,
+    ]);
+    console.log({ message: "billed already" });
+    return { message: "billed already" };
+  } catch (err) {
+    console.log(err);
+    return { message: err };
+  }
 }
 
 module.exports = {

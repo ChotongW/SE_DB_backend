@@ -7,19 +7,30 @@ const userMiddleware = require("../middleware/role");
 const payment = require("../routes/payment");
 const fs = require("fs");
 
-router.get("/getAll", userMiddleware.isLoggedIn, (req, res) => {
-  console.log(req.userData.id);
-  queryDB(
-    "SELECT * FROM vehicles",
-    undefined,
-    (err) => {
-      //console.log(err);
-      throw (err, res.send(err, 500));
-    },
-    (result) => {
-      res.send(result);
-    }
-  );
+router.get("/getAll", async (req, res) => {
+  //console.log(req.userData.id);
+  var sql = "SELECT * FROM vehicles WHERE availability != ?";
+  try {
+    var result = await queryDB(sql, 0);
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+    res.send(err, 500);
+    return;
+  }
+  //console.log("HI THERE!");
+  //res.send(result);
+  // queryDB(
+  //   "SELECT * FROM vehicles",
+  //   undefined,
+  //   (err) => {
+  //     //console.log(err);
+  //     throw (err, res.send(err, 500));
+  //   },
+  //   (result) => {
+  //     res.send(result);
+  //   }
+  // );
 });
 
 router.post("/upload", upload.single("file"), async (req, res) => {

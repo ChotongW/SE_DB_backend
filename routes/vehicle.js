@@ -14,36 +14,31 @@ router.use(
   })
 );
 
-router.get("/", (req, res) => {
-  queryDB(
-    "SELECT * FROM vehicles WHERE availability != 0",
-    undefined,
-    (err) => {
-      //console.log(err);
-      res.send(err, 500);
-      throw err;
-    },
-    (result) => {
-      res.send(result);
-    }
-  );
+router.get("/", async (req, res) => {
+  var sql = "SELECT * FROM vehicles WHERE availability != 0";
+  try {
+    var result = await queryDB(sql, undefined);
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+    res.send(err, 500);
+    return;
+  }
 });
 
-router.get("/:id", (req, res) => {
+router.get("/:id", async (req, res) => {
   //รับเป็น query params นะ
   let vehicle_id = req.query.vehicleId;
   //console.log(vehicle_id);
-  queryDB(
-    "SELECT * FROM vehicles WHERE vehicle_id = ?",
-    vehicle_id,
-    (err) => {
-      res.send(err, 500);
-      throw err;
-    },
-    (result) => {
-      res.send(result);
-    }
-  );
+  var sql = "SELECT * FROM vehicles WHERE vehicle_id = ?";
+  try {
+    var result = await queryDB(sql, vehicle_id);
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+    res.send(err, 500);
+    return;
+  }
 });
 
 router.put(
@@ -82,23 +77,26 @@ router.put(
     //upload to storage account
     try {
       var callback = await blob.blob_upload(simpleFile);
-      console.log(callback);
+      //console.log(callback);
       //res.send('File uploaded successfully');
-      fs.unlink(simpleFile.path, (err) => {
-        if (err) throw err;
-        // if no error, file has been deleted successfully
-        console.log("Local file deleted!");
-      });
+      console.log("File uploaded successfully");
     } catch (error) {
       console.log(error);
-      res.status(500).send({ respone: "Failure uploading" });
+      res.status(500).send("Failure uploading");
+      return;
     }
+    fs.unlink(simpleFile.path, (err) => {
+      if (err) throw err;
+      // if no error, file has been deleted successfully
+      console.log("Local file deleted!");
+    });
     //console.log(upload_res);
 
     //mysql store url
-    queryDB(
-      "UPDATE vehicles SET vehicle_img = ?, name = ?, brand = ?, year = ?, cost = ?, type_id = ?, description  = ?, review = ? where vehicle_id = ?",
-      [
+    var sql =
+      "UPDATE vehicles SET vehicle_img = ?, name = ?, brand = ?, year = ?, cost = ?, type_id = ?, description  = ?, review = ? where vehicle_id = ?";
+    try {
+      var result = await queryDB(sql, [
         callback,
         carName,
         brand,
@@ -108,27 +106,13 @@ router.put(
         description,
         review,
         vehicle_id,
-      ],
-      (err) => {
-        //console.log(err);
-        res.send(err, 500);
-        throw err;
-      },
-      () => {
-        //res.redirect(201, "/");
-        res.send({ message: "update img already" });
-      }
-    );
-    // var sql = "UPDATE vehicles SET vehicle_img = ? where vehicle_id = ?";
-    // db.query(sql, [callback, vehicle_id], (err, result) => {
-    //   if (!err) {
-    //     //res.redirect('/');
-    //     res.redirect(201, "/");
-    //   } else {
-    //     console.log(err);
-    //     res.status(500).send(err);
-    //   }
-    // });
+      ]);
+      res.send({ message: "update img already" });
+    } catch (err) {
+      console.log(err);
+      res.send(err, 500);
+      return;
+    }
   }
 );
 
@@ -176,6 +160,7 @@ router.post(
     } catch (error) {
       console.log(error);
       res.status(500).send("Failure uploading");
+      return;
     }
     fs.unlink(simpleFile.path, (err) => {
       if (err) throw err;
@@ -183,10 +168,11 @@ router.post(
       console.log("Local file deleted!");
     });
 
-    queryDB(
+    var sql =
       "INSERT INTO vehicles (vehicle_id, name,  brand, year, cost, availability, type_id, vehicle_img, description, review) \
-      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [
+    VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    try {
+      var result = await queryDB(sql, [
         vehicle_id,
         carName,
         brand,
@@ -197,20 +183,17 @@ router.post(
         callback,
         description,
         review,
-      ],
-      (err) => {
-        console.log(err);
-        res.send(500, { response: err });
-      },
-      () => {
-        res.send(201, { response: "Created vehicle already" });
-        //res.redirect(201, '/');
-      }
-    );
+      ]);
+      res.send(201, { response: "Created vehicle already" });
+    } catch (err) {
+      console.log(err);
+      res.send(500, { response: err });
+      return;
+    }
   }
 );
 
-router.delete("/delete", userMiddleware.isAdmin, (req, res) => {
+router.delete("/delete", userMiddleware.isAdmin, async (req, res) => {
   let vehicle_id = req.body.carId;
   if (vehicle_id == null) {
     res.send({
@@ -219,18 +202,15 @@ router.delete("/delete", userMiddleware.isAdmin, (req, res) => {
     });
     return;
   }
-  queryDB(
-    "DELETE FROM vehicles WHERE vehicle_id = ?",
-    vehicle_id,
-    (err) => {
-      console.log(err);
-      res.send(500, err);
-    },
-    () => {
-      //res.redirect(201, "/");
-      res.send({ message: "Deleted vehicle already" }, 200);
-    }
-  );
+  var sql = "DELETE FROM vehicles WHERE vehicle_id = ?";
+  try {
+    var result = await queryDB(sql, vehicle_id);
+    res.send({ message: "Deleted vehicle already" }, 200);
+  } catch (err) {
+    console.log(err);
+    res.send(err, 500);
+    return;
+  }
 });
 
 module.exports = router;
