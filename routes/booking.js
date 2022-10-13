@@ -94,66 +94,62 @@ router.post("/book", userMiddleware.isLoggedIn, async (req, res) => {
   }
 });
 
-const doReturn = (vehicle_id, book_id, res) => {
-  var id = uuid.v4();
+const doReturn = async (vehicle_id, res) => {
+  var sql = "UPDATE vehicles SET availability = ? where vehicle_id = ?";
+  try {
+    var result = await queryDB(sql, [1, vehicle_id]);
+    res.send(200, { message: "return car already" });
+    // if success does below
+  } catch (err) {
+    console.log(err);
+    res.send(500, { message: err });
+    return;
+  }
 
-  queryDB(
-    "UPDATE vehicles SET availability = ? where vehicle_id = ?",
-    [1, vehicle_id],
-    (err) => {
-      res.send(500, { message: err });
-    },
-    () => {
-      queryDB(
-        "UPDATE booking SET status = ? where vehicle_id = ?",
-        ["finished", vehicle_id],
-        (err) => {
-          // if error does below
-          console.log(err);
-        },
-        () => {
-          console.log({ message: "update status finished booking already" });
-        }
-      );
-      res.send(200, { message: "return car already" });
-    }
-  );
+  var sql = "UPDATE booking SET status = ? where vehicle_id = ?";
+  try {
+    var result2 = await queryDB(sql, ["finished", vehicle_id]);
+    console.log({ message: "update status finished booking already" });
+    // if success does below
+  } catch (err) {
+    console.log(err);
+    //res.send(500, { message: err });
+    return;
+  }
 };
 
 router.put("/return", userMiddleware.isLoggedIn, async (req, res) => {
   let book_id = req.body.bookId;
 
-  queryDB(
-    "SELECT bill_status from billing where book_id = ?",
-    book_id,
-    (err) => {
-      // if error does below
-      console.log(err);
-      throw err;
-    },
-    (result) => {
-      let bill_status = result[0].bill_status;
-      if (
-        bill_status == "pending" ||
-        bill_status == "verification" ||
-        bill_status == null
-      ) {
-        res.send(400, { message: "please pay bill before returning car." });
-      }
+  var sql = "SELECT bill_status from billing where book_id = ?";
+  try {
+    var result = await queryDB(sql, book_id);
+    // if success does below
+    let bill_status = result[0].bill_status;
+    if (
+      bill_status == "pending" ||
+      bill_status == "verification" ||
+      bill_status == null
+    ) {
+      res.send(400, { message: "please pay bill before returning car." });
+      return;
     }
-  );
-  queryDB(
-    "SELECT vehicle_id from booking where book_id = ?",
-    book_id,
-    (err) => {
-      // if error does below
-      console.log(err);
-      throw err;
-    },
-    (result) => {
-      doReturn(result[0].vehicle_id, book_id, res);
-    }
-  );
+  } catch (err) {
+    console.log(err);
+    res.send(500, { message: err });
+    return;
+  }
+
+  var sql = "SELECT vehicle_id from booking where book_id = ?";
+  try {
+    var result = await queryDB(sql, book_id);
+    // if success does below
+    doReturn(result[0].vehicle_id, res);
+  } catch (err) {
+    console.log(err);
+    res.send(500, { message: err });
+    return;
+  }
 });
 
 module.exports = router;
