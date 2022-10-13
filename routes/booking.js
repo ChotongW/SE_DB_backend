@@ -23,7 +23,7 @@ router.use(
 //   });
 // };
 
-const doInsertBooking = (req) => {
+const doInsertBooking = (req, res) => {
   let vehicle_id = req.body.carId;
   let start_date = req.body.bookDate;
   let end_date = req.body.returnDate;
@@ -91,7 +91,7 @@ router.post("/book", userMiddleware.isLoggedIn, (req, res) => {
       if (availability === 0) {
         res.send({ message: "this car is booked already" });
       } else {
-        doInsertBooking(req);
+        doInsertBooking(req, res);
       }
     }
   );
