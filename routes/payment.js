@@ -19,8 +19,8 @@ router.get("/admin", userMiddleware.isAdmin, (req, res) => {
   //let vehicle_id = req.query.vehicleId;
   //console.log(vehicle_id);
   queryDB(
-    "SELECT * FROM billing WHERE bill_status = verification",
-    undefined,
+    "SELECT * FROM billing WHERE bill_status = ?",
+    "verification",
     (err) => {
       //console.log(err);
       throw (err, res.send(err, 500));
