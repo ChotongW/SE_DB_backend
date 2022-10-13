@@ -109,7 +109,7 @@ router.put("/admin/approve", userMiddleware.isAdmin, (req, res) => {
   );
 });
 
-function createBill(cost, id_no) {
+function createBill(cost, id_no, book_id) {
   var id = uuid.v4();
 
   if (id_no == null || cost == null) {
@@ -121,8 +121,8 @@ function createBill(cost, id_no) {
   var total_amount = cost + tax_amount;
 
   queryDB(
-    "INSERT INTO billing (bill_id, bill_status, amount_balance, total_amount, tax_amount) VALUES (?, ?, ?, ?, ?)",
-    [id, "pending", cost, total_amount, tax_amount],
+    "INSERT INTO billing (bill_id, bill_status, book_id, amount_balance, total_amount, tax_amount) VALUES (?, ?, ?, ?, ?)",
+    [id, "pending", book_id, cost, total_amount, tax_amount],
     (err) => {
       console.log(err);
       return { message: err };
@@ -130,16 +130,6 @@ function createBill(cost, id_no) {
     () => {
       console.log({ message: "billed already" });
       return { message: "billed already" };
-    }
-  );
-  queryDB(
-    "UPDATE customer SET bill_id = ? WHERE id_no = ?;",
-    [id, id_no],
-    (err) => {
-      console.log(err);
-    },
-    () => {
-      console.log({ message: "update customer bill_id already" });
     }
   );
 }

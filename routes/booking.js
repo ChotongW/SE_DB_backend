@@ -69,8 +69,19 @@ const doInsertBooking = (req, res) => {
         parseInt(start_date.split("-")[2], 10);
       var total_amount = diffDays * cost;
       //console.log(total_amount);
-      payment.createBill(total_amount, id_no);
+      payment.createBill(total_amount, id_no, id);
       //console.log("complete");
+    }
+  );
+
+  queryDB(
+    "UPDATE customer SET book_id = ? WHERE id_no = ?;",
+    [id, id_no],
+    (err) => {
+      console.log(err);
+    },
+    () => {
+      console.log({ message: "update customer book_id already" });
     }
   );
 };
@@ -99,7 +110,19 @@ router.post("/book", userMiddleware.isLoggedIn, (req, res) => {
 });
 
 router.put("/return", userMiddleware.isLoggedIn, (req, res) => {
-  let vehicle_id = req.body.carId;
+  let book_id = req.body.bookId;
+
+  queryDB(
+    "SELECT biiling SET status = ? where vehicle_id = ?",
+    ["finished", vehicle_id],
+    (err) => {
+      // if error does below
+      console.log(err);
+    },
+    () => {
+      console.log({ message: "update status finished booking already" });
+    }
+  );
 
   queryDB(
     "UPDATE vehicles SET availability = ? where vehicle_id = ?",
