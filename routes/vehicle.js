@@ -207,7 +207,7 @@ router.post(
   }
 );
 
-router.delete("/id", userMiddleware.isAdmin, (req, res) => {
+router.delete("/delete", userMiddleware.isAdmin, (req, res) => {
   let vehicle_id = req.body.carId;
   if (vehicle_id == null) {
     res.send({
