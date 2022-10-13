@@ -103,4 +103,27 @@ router.put("/edit", userMiddleware.isAdmin, (req, res) => {
   );
 });
 
+router.delete("/delete", userMiddleware.isAdmin, (req, res) => {
+  let id = req.body.insurance_id;
+  if (id == null) {
+    res.send({
+      status: "incompleted",
+      message: "You must have insurance ID.",
+    });
+    return;
+  }
+  queryDB(
+    "DELETE FROM insurance WHERE in_id = ?",
+    id,
+    (err) => {
+      console.log(err);
+      res.send(500, err);
+    },
+    () => {
+      //res.redirect(201, "/");
+      res.send({ message: "Deleted insurance already" }, 200);
+    }
+  );
+});
+
 module.exports = router;

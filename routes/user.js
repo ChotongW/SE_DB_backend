@@ -24,14 +24,19 @@ const doReturnProfile = (id, userProf, res) => {
       res.send(err, 500);
     },
     (result) => {
-      var date = parseInt(
-        JSON.stringify(result[0].end_date).split("-")[2].slice(0, 2),
-        10
-      );
-      var summary = date - day;
-      userProf["daylefts"] = summary;
-      //console.log(result[0].daylefts);
-      res.status(200).send(userProf);
+      if (result.length === 0) {
+        userProf["daylefts"] = null;
+        res.status(200).send(userProf);
+      } else {
+        var date = parseInt(
+          JSON.stringify(result[0].end_date).split("-")[2].slice(0, 2),
+          10
+        );
+        var summary = date - day;
+        userProf["daylefts"] = summary;
+        //console.log(result[0].daylefts);
+        res.status(200).send(userProf);
+      }
     }
   );
 };
