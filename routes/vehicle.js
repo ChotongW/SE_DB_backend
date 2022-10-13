@@ -216,7 +216,7 @@ router.delete("/id", userMiddleware.isLoggedIn, (req, res) => {
     });
   }
   queryDB(
-    "DELETE FROM vehicels WHERE vehicle_id = ?",
+    "DELETE FROM vehicles WHERE vehicle_id = ?",
     vehicle_id,
     (err) => {
       console.log(err);
