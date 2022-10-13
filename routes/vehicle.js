@@ -207,13 +207,14 @@ router.post(
   }
 );
 
-router.delete("/id", userMiddleware.isLoggedIn, (req, res) => {
+router.delete("/id", userMiddleware.isAdmin, (req, res) => {
   let vehicle_id = req.body.carId;
   if (vehicle_id == null) {
     res.send({
       status: "incompleted",
       message: "You must have car ID.",
     });
+    return;
   }
   queryDB(
     "DELETE FROM vehicles WHERE vehicle_id = ?",
