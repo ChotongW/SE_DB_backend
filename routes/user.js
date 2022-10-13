@@ -95,7 +95,7 @@ router.get("/payment", userMiddleware.isLoggedIn, async (req, res) => {
 });
 
 router.put("/edit", userMiddleware.isLoggedIn, async (req, res) => {
-  let id = req.body.customerId;
+  let id = req.userData.id;
   let fname = req.body.customerFname;
   let lname = req.body.customerLname;
   let phone = req.body.phone;

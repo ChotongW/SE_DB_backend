@@ -23,35 +23,29 @@ router.use(
 //   });
 // };
 
-const doInsertBooking = async (req, res) => {
+const doInsertBooking = (req, res) => {
   let vehicle_id = req.body.carId;
   let start_date = req.body.bookDate;
   let end_date = req.body.returnDate;
   let insurance = req.body.insuranceId;
-  let id_no; //= req.userData.id;
+  let id_no = req.userData.id;
   var id = uuid.v4();
 
-  try {
-    queryDB(
-      "INSERT INTO booking (book_id, vehicle_id, id_no, in_id, start_date, end_date, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      [id, vehicle_id, id_no, insurance, start_date, end_date, "current"],
-      (err) => {
-        console.log(err);
-        res.send(500, err);
-        return err;
-      },
-      () => {
-        res.send(201, { message: "booked already" });
-        //res.redirect(201, '/');
-        return;
-      }
-    );
-  } catch (err) {
-    console.log(err);
-    return err;
-  }
+  queryDB(
+    "INSERT INTO booking (book_id, vehicle_id, id_no, in_id, start_date, end_date, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
+    [id, vehicle_id, id_no, insurance, start_date, end_date, "current"],
+    (err) => {
+      console.log(err);
+      res.send(500, err);
+      throw err;
+    },
+    () => {
+      res.send(201, { message: "booked already" });
+      //res.redirect(201, '/');
+    }
+  );
 
-  await queryDB(
+  queryDB(
     "UPDATE vehicles SET availability = ? where vehicle_id = ?",
     [0, vehicle_id],
     (err) => {
@@ -62,7 +56,7 @@ const doInsertBooking = async (req, res) => {
     }
   );
 
-  await queryDB(
+  queryDB(
     "SELECT cost FROM vehicles WHERE vehicle_id = ?",
     vehicle_id,
     (err) => {
@@ -96,7 +90,7 @@ router.post("/book", userMiddleware.isLoggedIn, (req, res) => {
       // if success does below
       let availability = result[0].availability;
       if (availability === 0) {
-        res.send({ message: "this car is booked already" });
+        res.send({ message: "this car is booked already" }, 400);
       } else {
         doInsertBooking(req, res);
       }

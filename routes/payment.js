@@ -73,7 +73,7 @@ router.put(
       console.log("Local file deleted!");
     });
     queryDB(
-      "UPDATE billing SET slip =  ?, bill_status = ? WHERE bill_id = ?;",
+      "UPDATE billing SET slip = ?, bill_status = ? WHERE bill_id = ?;",
       [callback, "verification", bill_id],
       (err) => {
         console.log(err);
@@ -132,7 +132,6 @@ function createBill(cost, id_no) {
       return { message: "billed already" };
     }
   );
-  console.log(id_no);
   queryDB(
     "UPDATE customer SET bill_id = ? WHERE id_no = ?;",
     [id, id_no],
