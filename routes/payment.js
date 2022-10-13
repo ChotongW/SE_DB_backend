@@ -36,7 +36,7 @@ router.put(
   async (req, res) => {
     let slip = req.file;
     //ส่ง bill_id กลับมาด้วยนะ *** เป็น form-data นะ ***
-    let bill_id = req.body.bill_id;
+    let book_id = req.body.book_id;
     //let booking_status = req.booking_status;
     if (slip == null) {
       res.send(
@@ -63,9 +63,9 @@ router.put(
       // if no error, file has been deleted successfully
       console.log("Local file deleted!");
     });
-    var sql = "UPDATE billing SET slip = ?, bill_status = ? WHERE bill_id = ?;";
+    var sql = "UPDATE billing SET slip = ?, bill_status = ? WHERE book_id = ?;";
     try {
-      var result = await queryDB(sql, [callback, "verification", bill_id]);
+      var result = await queryDB(sql, [callback, "verification", book_id]);
       res.send(201, { response: "upload slip already" });
     } catch (err) {
       console.log(err);
