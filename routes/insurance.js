@@ -41,7 +41,7 @@ router.get("/admin", userMiddleware.isAdmin, (req, res) => {
   );
 });
 
-router.post("/", userMiddleware.isLoggedIn, async (req, res) => {
+router.post("/add", userMiddleware.isAdmin, async (req, res) => {
   //console.log(req.body);
   let name = req.body.insurance_name;
   let info = req.body.insurance_info;
@@ -70,6 +70,35 @@ router.post("/", userMiddleware.isLoggedIn, async (req, res) => {
     () => {
       res.send(201, { response: "Created insurance already" });
       //res.redirect(201, '/');
+    }
+  );
+});
+
+router.put("/edit", userMiddleware.isAdmin, (req, res) => {
+  let id = req.body.insurance_id;
+  let name = req.body.insurance_name;
+  let info = req.body.insurance_info;
+  let insu_class = req.body.insurance_class;
+  let cost = parseInt(req.body.insurance_price, 10);
+
+  if (id == null) {
+    res.send(
+      {
+        status: "incompleted",
+        message: "You have id unfilled.",
+      },
+      400
+    );
+    return 0;
+  }
+  queryDB(
+    "UPDATE insurance SET name = ? info = ? class = ? cost = ? where in_id = ?",
+    [name, info, insu_class, cost, id],
+    (err) => {
+      res.send(500, { message: err });
+    },
+    () => {
+      res.send(200, { message: "update insurance already" });
     }
   );
 });
