@@ -20,7 +20,8 @@ router.get("/", (req, res) => {
     undefined,
     (err) => {
       //console.log(err);
-      throw (err, res.send(err, 500));
+      res.send(err, 500);
+      throw err;
     },
     (result) => {
       res.send(result);
@@ -36,7 +37,8 @@ router.get("/:id", (req, res) => {
     "SELECT * FROM vehicles WHERE vehicle_id = ?",
     vehicle_id,
     (err) => {
-      throw (err, res.send(err, 500));
+      res.send(err, 500);
+      throw err;
     },
     (result) => {
       res.send(result);
@@ -109,7 +111,8 @@ router.put(
       ],
       (err) => {
         //console.log(err);
-        throw (err, res.send(err, 500));
+        res.send(err, 500);
+        throw err;
       },
       () => {
         //res.redirect(201, "/");

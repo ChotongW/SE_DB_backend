@@ -23,39 +23,46 @@ router.use(
 //   });
 // };
 
-const doInsertBooking = (req, res) => {
+const doInsertBooking = async (req, res) => {
   let vehicle_id = req.body.carId;
   let start_date = req.body.bookDate;
   let end_date = req.body.returnDate;
   let insurance = req.body.insuranceId;
-  let id_no = req.body.id;
+  let id_no; //= req.userData.id;
   var id = uuid.v4();
 
-  queryDB(
-    "INSERT INTO booking (book_id, vehicle_id, id_no, in_id, start_date, end_date, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
-    [id, vehicle_id, id_no, insurance, start_date, end_date, "current"],
-    (err) => {
-      console.log(err);
-      res.send(500, err);
-    },
-    () => {
-      res.send(201, { message: "booked already" });
-      //res.redirect(201, '/');
-    }
-  );
+  try {
+    queryDB(
+      "INSERT INTO booking (book_id, vehicle_id, id_no, in_id, start_date, end_date, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [id, vehicle_id, id_no, insurance, start_date, end_date, "current"],
+      (err) => {
+        console.log(err);
+        res.send(500, err);
+        return err;
+      },
+      () => {
+        res.send(201, { message: "booked already" });
+        //res.redirect(201, '/');
+        return;
+      }
+    );
+  } catch (err) {
+    console.log(err);
+    return err;
+  }
 
-  queryDB(
+  await queryDB(
     "UPDATE vehicles SET availability = ? where vehicle_id = ?",
     [0, vehicle_id],
     (err) => {
       console.log(err);
     },
     () => {
-      console.log({ message: "update already" });
+      console.log({ message: "update vehicles availability already" });
     }
   );
 
-  queryDB(
+  await queryDB(
     "SELECT cost FROM vehicles WHERE vehicle_id = ?",
     vehicle_id,
     (err) => {
@@ -68,7 +75,7 @@ const doInsertBooking = (req, res) => {
         parseInt(start_date.split("-")[2], 10);
       var total_amount = diffDays * cost;
       //console.log(total_amount);
-      const response = payment.createBill(total_amount, id_no);
+      payment.createBill(total_amount, id_no);
       //console.log("complete");
     }
   );

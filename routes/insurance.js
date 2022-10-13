@@ -19,7 +19,8 @@ router.get("/", userMiddleware.isLoggedIn, (req, res) => {
     undefined,
     (err) => {
       //console.log(err);
-      throw (err, res.send(err, 500));
+      res.send(err, 500);
+      throw err;
     },
     (result) => {
       res.send(result);
@@ -33,7 +34,8 @@ router.get("/admin", userMiddleware.isAdmin, (req, res) => {
     undefined,
     (err) => {
       //console.log(err);
-      throw (err, res.send(err, 500));
+      res.send(err, 500);
+      throw err;
     },
     (result) => {
       res.send(result);

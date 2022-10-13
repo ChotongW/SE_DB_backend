@@ -23,7 +23,8 @@ router.get("/admin", userMiddleware.isAdmin, (req, res) => {
     "verification",
     (err) => {
       //console.log(err);
-      throw (err, res.send(err, 500));
+      res.send(err, 500);
+      throw err;
     },
     (result) => {
       res.send(result);
@@ -109,11 +110,16 @@ router.put("/admin/approve", userMiddleware.isAdmin, (req, res) => {
 });
 
 function createBill(cost, id_no) {
-  console.log(cost);
-  console.log(id_no);
   var id = uuid.v4();
+
+  if (id_no == null || cost == null) {
+    console.log({ message: "parameters is undefine, create bill failed." });
+    return null;
+  }
+
   var tax_amount = cost * 0.07;
   var total_amount = cost + tax_amount;
+
   queryDB(
     "INSERT INTO billing (bill_id, bill_status, amount_balance, total_amount, tax_amount) VALUES (?, ?, ?, ?, ?)",
     [id, "pending", cost, total_amount, tax_amount],
@@ -122,10 +128,11 @@ function createBill(cost, id_no) {
       return { message: err };
     },
     () => {
+      console.log({ message: "billed already" });
       return { message: "billed already" };
     }
   );
-
+  console.log(id_no);
   queryDB(
     "UPDATE customer SET bill_id = ? WHERE id_no = ?;",
     [id, id_no],

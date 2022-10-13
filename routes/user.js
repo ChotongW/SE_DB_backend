@@ -49,6 +49,7 @@ router.get("/profile", userMiddleware.isLoggedIn, (req, res) => {
     (err) => {
       //console.log(err);
       res.send(err, 500);
+      throw err;
     },
     (result) => {
       if (result[0] === undefined) {
@@ -72,7 +73,8 @@ router.get("/payment", userMiddleware.isLoggedIn, async (req, res) => {
     id,
     (err) => {
       //console.log(err);
-      throw (err, res.send(err, 500));
+      res.send(err, 500);
+      throw err;
     },
     (result) => {
       var bill_id = result[0].bill_id;
@@ -81,7 +83,8 @@ router.get("/payment", userMiddleware.isLoggedIn, async (req, res) => {
         bill_id,
         (err) => {
           //console.log(err);
-          throw (err, res.send(err, 500));
+          res.send(err, 500);
+          throw err;
         },
         (result) => {
           res.send(result);
@@ -114,7 +117,8 @@ router.put("/edit", userMiddleware.isLoggedIn, async (req, res) => {
     [fname, lname, phone, id],
     (err) => {
       //console.log(err);
-      throw (err, res.send(err, 500));
+      res.send(err, 500);
+      throw err;
     },
     () => {
       //res.redirect(201, "/");
