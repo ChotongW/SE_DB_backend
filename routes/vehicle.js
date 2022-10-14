@@ -53,6 +53,7 @@ const doEdit = async (req, res, img_path) => {
   let brand = carModel.split(" ")[0];
   let carName = carModel.split(" ")[1];
   let year = carModel.split(" ")[2];
+
   //mysql store url
   var sql =
     "UPDATE vehicles SET vehicle_img = ?, name = ?, brand = ?, year = ?, cost = ?, type_id = ?, description  = ?, review = ? where vehicle_id = ?";
@@ -107,7 +108,8 @@ router.put(
       var sql = "SELECT vehicle_img from vehicles where vehicle_id = ?";
       try {
         var result = await queryDB(sql, vehicle_id);
-        doEdit(req, res, result);
+        //console.log(result[0].vehicle_img);
+        doEdit(req, res, result[0].vehicle_img);
       } catch (err) {
         console.log(err);
         res.send(err, 500);
