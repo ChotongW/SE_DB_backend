@@ -37,7 +37,7 @@ router.get("/admin", userMiddleware.isAdmin, async (req, res) => {
   }
 });
 
-router.post("/add", userMiddleware.isAdmin, async (req, res) => {
+router.post("/admin/add", userMiddleware.isAdmin, async (req, res) => {
   //console.log(req.body);
   let name = req.body.insurance_name;
   let info = req.body.insurance_info;
@@ -68,7 +68,7 @@ router.post("/add", userMiddleware.isAdmin, async (req, res) => {
   }
 });
 
-router.put("/edit", userMiddleware.isAdmin, async (req, res) => {
+router.put("/admin/edit", userMiddleware.isAdmin, async (req, res) => {
   let id = req.body.insurance_id;
   let name = req.body.insurance_name;
   let info = req.body.insurance_info;
@@ -97,7 +97,7 @@ router.put("/edit", userMiddleware.isAdmin, async (req, res) => {
   }
 });
 
-router.delete("/delete", userMiddleware.isAdmin, async (req, res) => {
+router.delete("/admin/delete", userMiddleware.isAdmin, async (req, res) => {
   let id = req.body.insurance_id;
   if (id == null) {
     res.send(
