@@ -87,6 +87,30 @@ router.get("/payment", userMiddleware.isLoggedIn, async (req, res) => {
   }
 });
 
+router.get("/booking", userMiddleware.isLoggedIn, async (req, res) => {
+  let id = req.userData.id;
+
+  var sql = "SELECT book_id FROM customer where id_no = ?";
+  try {
+    var result = await queryDB(sql, id);
+    var book_id = result[0].book_id;
+  } catch (err) {
+    console.log(err);
+    res.send(500, { message: err });
+    return;
+  }
+
+  var sql = "SELECT * FROM booking where book_id = ?";
+  try {
+    var result2 = await queryDB(sql, book_id);
+    res.send(result2);
+  } catch (err) {
+    console.log(err);
+    res.send(500, { message: err });
+    return;
+  }
+});
+
 router.put("/edit", userMiddleware.isLoggedIn, async (req, res) => {
   let id = req.userData.id;
   let fname = req.body.customerFname;
