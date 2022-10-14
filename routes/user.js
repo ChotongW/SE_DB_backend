@@ -115,7 +115,7 @@ router.get("/booking", userMiddleware.isLoggedIn, async (req, res) => {
   var sql =
     "SELECT name, brand, vehicle_img, cost FROM vehicles where vehicle_id = ?";
   try {
-    var carDetail = await queryDB(sql, book_id);
+    var carDetail = await queryDB(sql, vehicle_id);
     booking["vehicle_img"] = carDetail[0].vehicle_img;
     booking["model_name"] = carDetail[0].name;
     booking["brand"] = carDetail[0].brand;
