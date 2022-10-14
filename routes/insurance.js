@@ -86,7 +86,7 @@ router.put("/admin/edit", userMiddleware.isAdmin, async (req, res) => {
     return;
   }
   var sql =
-    "UPDATE insurance SET name = ? info = ? class = ? cost = ? where in_id = ?";
+    "UPDATE insurance SET name = ?, info = ?, class = ?, cost = ? where in_id = ?";
   try {
     var result = await queryDB(sql, [name, info, insu_class, cost, id]);
     res.send(200, { message: "update insurance already" });
