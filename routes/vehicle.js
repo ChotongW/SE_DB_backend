@@ -41,6 +41,41 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+const doEdit = async (req, res, img_path) => {
+  let vehicle_id = req.body.carId;
+  let carModel = req.body.carName;
+  let price = parseInt(req.body.price, 10);
+  let vehicle_type = parseInt(req.body.typeId, 10);
+  let description = req.body.description;
+  let review = req.body.review;
+
+  //console.log(simpleFile);
+  let brand = carModel.split(" ")[0];
+  let carName = carModel.split(" ")[1];
+  let year = carModel.split(" ")[2];
+  //mysql store url
+  var sql =
+    "UPDATE vehicles SET vehicle_img = ?, name = ?, brand = ?, year = ?, cost = ?, type_id = ?, description  = ?, review = ? where vehicle_id = ?";
+  try {
+    var result = await queryDB(sql, [
+      img_path,
+      carName,
+      brand,
+      year,
+      price,
+      vehicle_type,
+      description,
+      review,
+      vehicle_id,
+    ]);
+    res.send({ message: "update img already" });
+  } catch (err) {
+    console.log(err);
+    res.send(err, 500);
+    return;
+  }
+};
+
 router.put(
   "/edit",
   userMiddleware.isAdmin,
@@ -48,8 +83,6 @@ router.put(
   async (req, res) => {
     let vehicle_id = req.body.carId;
     let carModel = req.body.carName;
-    let description = req.body.description;
-    let review = req.body.review;
     let price = parseInt(req.body.price, 10);
     let vehicle_type = parseInt(req.body.typeId, 10);
     let simpleFile = req.file;
@@ -69,49 +102,36 @@ router.put(
       );
       return 0;
     }
-    //console.log(simpleFile);
-    let brand = carModel.split(" ")[0];
-    let carName = carModel.split(" ")[1];
-    let year = carModel.split(" ")[2];
 
-    //upload to storage account
-    try {
-      var callback = await blob.blob_upload(simpleFile);
-      //console.log(callback);
-      //res.send('File uploaded successfully');
-      console.log("File uploaded successfully");
-    } catch (error) {
-      console.log(error);
-      res.status(500).send("Failure uploading");
-      return;
-    }
-    fs.unlink(simpleFile.path, (err) => {
-      if (err) throw err;
-      // if no error, file has been deleted successfully
-      console.log("Local file deleted!");
-    });
-    //console.log(upload_res);
-
-    //mysql store url
-    var sql =
-      "UPDATE vehicles SET vehicle_img = ?, name = ?, brand = ?, year = ?, cost = ?, type_id = ?, description  = ?, review = ? where vehicle_id = ?";
-    try {
-      var result = await queryDB(sql, [
-        callback,
-        carName,
-        brand,
-        year,
-        price,
-        vehicle_type,
-        description,
-        review,
-        vehicle_id,
-      ]);
-      res.send({ message: "update img already" });
-    } catch (err) {
-      console.log(err);
-      res.send(err, 500);
-      return;
+    if (simpleFile == null) {
+      var sql = "SELECT vehicle_img from vehicles where vehicle_id = ?";
+      try {
+        var result = await queryDB(sql, vehicle_id);
+        doEdit(req, res, result);
+      } catch (err) {
+        console.log(err);
+        res.send(err, 500);
+        return;
+      }
+    } else {
+      //upload to storage account
+      try {
+        var callback = await blob.blob_upload(simpleFile);
+        //console.log(callback);
+        //res.send('File uploaded successfully');
+        console.log("File uploaded successfully");
+      } catch (error) {
+        console.log(error);
+        res.status(500).send("Failure uploading");
+        return;
+      }
+      fs.unlink(simpleFile.path, (err) => {
+        if (err) throw err;
+        // if no error, file has been deleted successfully
+        console.log("Local file deleted!");
+      });
+      doEdit(req, res, callback);
+      //console.log(upload_res);
     }
   }
 );
