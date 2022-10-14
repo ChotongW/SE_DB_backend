@@ -98,6 +98,7 @@ router.get("/booking", userMiddleware.isLoggedIn, async (req, res) => {
       return;
     }
     var book_id = result[0].book_id;
+    console.log(book_id);
   } catch (err) {
     console.log(err);
     res.send(500, { message: err });
@@ -109,7 +110,7 @@ router.get("/booking", userMiddleware.isLoggedIn, async (req, res) => {
   try {
     var booking = await queryDB(sql, book_id);
     //res.send(result2);
-    vehicle_id = booking[0].vehicle_id;
+    var vehicle_id = booking[0].vehicle_id;
   } catch (err) {
     console.log(err);
     res.send(500, { message: err });
@@ -120,10 +121,10 @@ router.get("/booking", userMiddleware.isLoggedIn, async (req, res) => {
     "SELECT name, brand, vehicle_img, cost FROM vehicles where vehicle_id = ?";
   try {
     var carDetail = await queryDB(sql, vehicle_id);
-    booking["vehicle_img"] = carDetail[0].vehicle_img;
-    booking["model_name"] = carDetail[0].name;
-    booking["brand"] = carDetail[0].brand;
-    booking["cost"] = carDetail[0].cost;
+    booking[0]["vehicle_img"] = carDetail[0].vehicle_img;
+    booking[0]["model_name"] = carDetail[0].name;
+    booking[0]["brand"] = carDetail[0].brand;
+    booking[0]["cost"] = carDetail[0].cost;
 
     res.send(booking);
   } catch (err) {
