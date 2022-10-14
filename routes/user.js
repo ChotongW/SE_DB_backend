@@ -100,10 +100,28 @@ router.get("/booking", userMiddleware.isLoggedIn, async (req, res) => {
     return;
   }
 
-  var sql = "SELECT * FROM booking where book_id = ?";
+  var sql =
+    "SELECT book_id, vehicle_id, in_id, status FROM booking where book_id = ?";
   try {
-    var result2 = await queryDB(sql, book_id);
-    res.send(result2);
+    var booking = await queryDB(sql, book_id);
+    //res.send(result2);
+    vehicle_id = booking[0].vehicle_id;
+  } catch (err) {
+    console.log(err);
+    res.send(500, { message: err });
+    return;
+  }
+
+  var sql =
+    "SELECT name, brand, vehicle_img, cost FROM vehicles where vehicle_id = ?";
+  try {
+    var carDetail = await queryDB(sql, book_id);
+    booking["vehicle_img"] = carDetail[0].vehicle_img;
+    booking["model_name"] = carDetail[0].name;
+    booking["brand"] = carDetail[0].brand;
+    booking["cost"] = carDetail[0].cost;
+
+    res.send(booking);
   } catch (err) {
     console.log(err);
     res.send(500, { message: err });
