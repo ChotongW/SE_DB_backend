@@ -15,7 +15,7 @@ router.use(
 );
 
 router.get("/", async (req, res) => {
-  var sql = "SELECT * FROM vehicles WHERE availability != 0";
+  var sql = "SELECT * FROM vehicles WHERE availability != 0 ORDER BY brand";
   try {
     var result = await queryDB(sql, undefined);
     res.send(result);

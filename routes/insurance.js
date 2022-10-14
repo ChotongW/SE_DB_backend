@@ -14,7 +14,7 @@ router.use(
 );
 
 router.get("/", userMiddleware.isLoggedIn, async (req, res) => {
-  var sql = "SELECT * FROM insurance";
+  var sql = "SELECT * FROM insurance ORDER BY class";
   try {
     var result = await queryDB(sql, undefined);
     res.send(result);
@@ -26,7 +26,7 @@ router.get("/", userMiddleware.isLoggedIn, async (req, res) => {
 });
 
 router.get("/admin", userMiddleware.isAdmin, async (req, res) => {
-  var sql = "SELECT * FROM insurance";
+  var sql = "SELECT * FROM insurance ORDER BY class";
   try {
     var result = await queryDB(sql, undefined);
     res.send(result);
