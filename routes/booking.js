@@ -21,6 +21,10 @@ const doInsertBooking = async (req, res) => {
   let id_no = req.userData.id;
   var id = uuid.v4();
 
+  if (insurance === "") {
+    insurance = null;
+  }
+
   var sql =
     "INSERT INTO booking (book_id, vehicle_id, id_no, in_id, start_date, end_date, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
   try {
