@@ -31,10 +31,6 @@ router.get("/getAll", async (req, res) => {
   // );
 });
 
-router.get("/mongo", async (req, res) => {
-  res.send("hi");
-});
-
 router.get("/cost", async (req, res) => {
   let in_id = req.body.insuranceId;
   let vehicle_id = req.body.carId;

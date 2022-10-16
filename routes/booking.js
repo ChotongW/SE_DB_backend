@@ -18,6 +18,9 @@ const doInsertBooking = async (req, res) => {
   let start_date = req.body.bookDate;
   let end_date = req.body.returnDate;
   let insurance = req.body.insuranceId;
+  let amount_balance = req.body.amountBalance;
+  let tax_amount = req.body.tax_amount;
+  let total_amount = req.body.total_amount;
   let id_no = req.userData.id;
   var id = uuid.v4();
 
@@ -53,30 +56,14 @@ const doInsertBooking = async (req, res) => {
     return;
   }
 
-  var sql = "SELECT cost from insurance where in_id = ?";
-  try {
-    var result = await queryDB(sql, [0, vehicle_id]);
-    console.log({ message: "update vehicles availability already" });
-  } catch (err) {
-    console.log(err);
-    return;
-  }
-
-  var sql = "SELECT cost FROM vehicles WHERE vehicle_id = ?";
-  try {
-    var result = await queryDB(sql, vehicle_id);
-    var cost = result[0].cost;
-    var diffDays =
-      parseInt(end_date.split("-")[2], 10) -
-      parseInt(start_date.split("-")[2], 10);
-    var total_amount = diffDays * cost;
-    //console.log(total_amount);
-    const response = payment.createBill(total_amount, id_no, id);
-    console.log(response);
-  } catch (err) {
-    console.log(err);
-    return;
-  }
+  const response = payment.createBill(
+    amount_balance,
+    tax_amount,
+    total_amount,
+    id_no,
+    id
+  );
+  console.log(response);
 
   var sql = "UPDATE customer SET book_id = ? WHERE id_no = ?;";
   try {
@@ -87,6 +74,48 @@ const doInsertBooking = async (req, res) => {
     return;
   }
 };
+
+router.get("/summary", userMiddleware.isLoggedIn, async (req, res) => {
+  let in_id = req.body.insuranceId;
+  let vehicle_id = req.body.carId;
+  let start_date = req.body.bookDate;
+  let end_date = req.body.returnDate;
+
+  var sql = "SELECT cost from insurance where in_id = ?";
+  try {
+    var result = await queryDB(sql, in_id);
+    if (result.length == 0) {
+      var insu_cost = 0;
+    } else {
+      insu_cost = result[0].cost;
+    }
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+
+  var sql = "SELECT cost from vehicles where vehicle_id = ?";
+  try {
+    var result2 = await queryDB(sql, vehicle_id);
+    var vehicle_cost = result2[0].cost;
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+
+  var diffDays =
+    parseInt(end_date.split("-")[2], 10) -
+    parseInt(start_date.split("-")[2], 10);
+  var amount_balance = diffDays * vehicle_cost + insu_cost;
+  var tax_amount = amount_balance * 0.07;
+  var total_amount = amount_balance + tax_amount;
+
+  res.send({
+    amount_balance: amount_balance,
+    tax_amount: tax_amount,
+    total_amount: total_amount,
+  });
+});
 
 router.post("/book", userMiddleware.isLoggedIn, async (req, res) => {
   let vehicle_id = req.body.carId;
