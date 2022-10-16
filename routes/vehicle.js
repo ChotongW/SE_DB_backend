@@ -31,7 +31,7 @@ router.get("/search", userMiddleware.isLoggedIn, async (req, res) => {
   let name = req.query.carName;
   var search = `%${name}%`;
   //console.log(search);
-  var sql = "SELECT * FROM vehicles WHERE name like ?";
+  var sql = "SELECT * FROM vehicles WHERE name like ? ORDER BY brand";
   try {
     var result = await queryDB(sql, search);
     res.send(result);
