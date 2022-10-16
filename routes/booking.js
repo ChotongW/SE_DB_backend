@@ -83,6 +83,16 @@ router.get("/summary", userMiddleware.isLoggedIn, async (req, res) => {
   let start_date = req.body.bookDate;
   let end_date = req.body.returnDate;
 
+  if (
+    in_id == null ||
+    vehicle_id == null ||
+    start_date == null ||
+    end_date == null
+  ) {
+    res.send({ message: "some fields are unfilled." }, 400);
+    return;
+  }
+
   var sql = "SELECT cost from insurance where in_id = ?";
   try {
     var result = await queryDB(sql, in_id);

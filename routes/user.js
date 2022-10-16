@@ -70,7 +70,7 @@ router.get("/payment", userMiddleware.isLoggedIn, async (req, res) => {
   try {
     var result = await queryDB(sql, id);
     if (result.length == 0) {
-      res.send(500, { message: "No book found." });
+      res.send({ message: "No book found." }, 400);
       return;
     }
     var book_id = result[0].book_id;
