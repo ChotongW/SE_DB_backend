@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const queryDB = require("../config/db");
 const userMiddleware = require("../middleware/role");
 const payment = require("../routes/payment");
+const redis = require("../config/redis");
 var uuid = require("uuid");
 
 router = express.Router();
@@ -45,6 +46,15 @@ const doInsertBooking = async (req, res) => {
   }
 
   var sql = "UPDATE vehicles SET availability = ? where vehicle_id = ?";
+  try {
+    var result = await queryDB(sql, [0, vehicle_id]);
+    console.log({ message: "update vehicles availability already" });
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+
+  var sql = "SELECT cost from insurance where in_id = ?";
   try {
     var result = await queryDB(sql, [0, vehicle_id]);
     console.log({ message: "update vehicles availability already" });
@@ -96,6 +106,20 @@ router.post("/book", userMiddleware.isLoggedIn, async (req, res) => {
     console.log(err);
     res.send(500, { message: err });
   }
+});
+
+router.post("/redis/add", async (req, res) => {
+  let vehicle_id = req.body.carId;
+  let start_date = req.body.bookDate;
+  let end_date = req.body.returnDate;
+  await redis.connect();
+
+  await redis.set("vehicle_id", vehicle_id);
+  await redis.set("start_date", start_date);
+  await redis.set("end_date", end_date);
+
+  res.send({ message: "post already" });
+  await redis.disconnect();
 });
 
 const doReturn = async (vehicle_id, res) => {

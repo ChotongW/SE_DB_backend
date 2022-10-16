@@ -63,6 +63,29 @@ router.post("/redis/add", async (req, res) => {
   await redis.disconnect();
 });
 
+router.get("/cost", async (req, res) => {
+  let in_id = req.body.insuranceId;
+
+  if (in_id.length == 0) {
+    in_id = "null";
+  }
+  console.log(in_id);
+  var sql = "SELECT cost from insurance where in_id = ?";
+  try {
+    var result = await queryDB(sql, in_id);
+    if (result.length == 0) {
+      var insu_cost = 0;
+    } else {
+      insu_cost = result[0].cost;
+    }
+    res.send({ message: insu_cost });
+  } catch (err) {
+    console.log(err);
+    res.send({ message: err });
+    return;
+  }
+});
+
 router.post("/upload", upload.single("file"), async (req, res) => {
   let simpleFile = req.file;
 
