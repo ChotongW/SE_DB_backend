@@ -69,6 +69,10 @@ router.get("/payment", userMiddleware.isLoggedIn, async (req, res) => {
   var sql = "SELECT book_id FROM customer where id_no = ?";
   try {
     var result = await queryDB(sql, id);
+    if (result.length == 0) {
+      res.send(500, { message: "No book found." });
+      return;
+    }
     var book_id = result[0].book_id;
   } catch (err) {
     console.log(err);
