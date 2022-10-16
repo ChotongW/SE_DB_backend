@@ -78,10 +78,10 @@ const doInsertBooking = async (req, res) => {
 };
 
 router.get("/summary", userMiddleware.isLoggedIn, async (req, res) => {
-  let in_id = req.body.insuranceId;
-  let vehicle_id = req.body.carId;
-  let start_date = req.body.bookDate;
-  let end_date = req.body.returnDate;
+  let in_id = req.query.insuranceId;
+  let vehicle_id = req.query.carId;
+  let start_date = req.query.bookDate;
+  let end_date = req.query.returnDate;
 
   if (
     in_id == null ||
