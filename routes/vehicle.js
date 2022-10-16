@@ -5,6 +5,7 @@ const upload = require("../storage/multer");
 const blob = require("../storage/blobCar");
 const userMiddleware = require("../middleware/role");
 const fs = require("fs");
+const { router } = require("./payment");
 
 router = express.Router();
 router.use(express.json());
@@ -26,11 +27,11 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/search", async (req, res) => {
   //รับเป็น query params นะ
-  let vehicle_id = req.query.vehicleId;
+  let vehicle_id = req.query.carName;
   //console.log(vehicle_id);
-  var sql = "SELECT * FROM vehicles WHERE vehicle_id = ?";
+  var sql = "SELECT * FROM vehicles WHERE name LIKE %?";
   try {
     var result = await queryDB(sql, vehicle_id);
     res.send(result);
@@ -39,6 +40,21 @@ router.get("/:id", async (req, res) => {
     res.send(err, 500);
     return;
   }
+});
+
+router.get("/:id", userMiddleware.isLoggedIn, (req, res) => {
+  search = req.query.search;
+  console.log(search);
+  var searchEmployees = `SELECT * FROM employees WHERE (employeeNo LIKE '%${search}%' OR name LIKE '%${search}%' OR email LIKE '%${search}%' OR contact LIKE '%${search}%') AND isDeleted='0' `;
+  //searchValues = [search,search,search,search]
+  console.log(searchEmployees);
+  db.query(searchEmployees, function (errQuery, resQuery) {
+    if (errQuery) {
+      res.send(errQuery);
+    } else {
+      res.send(resQuery);
+    }
+  });
 });
 
 const doEdit = async (req, res, img_path) => {

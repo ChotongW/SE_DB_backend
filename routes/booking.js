@@ -53,6 +53,7 @@ const doInsertBooking = async (req, res) => {
     console.log({ message: "update vehicles availability already" });
   } catch (err) {
     console.log(err);
+    res.send(err, 500);
     return;
   }
 
@@ -71,6 +72,7 @@ const doInsertBooking = async (req, res) => {
     console.log({ message: "update customer book_id already" });
   } catch (err) {
     console.log(err);
+    res.send(err, 500);
     return;
   }
 };
@@ -91,6 +93,7 @@ router.get("/summary", userMiddleware.isLoggedIn, async (req, res) => {
     }
   } catch (err) {
     console.log(err);
+    res.send(err, 500);
     return;
   }
 
@@ -100,21 +103,28 @@ router.get("/summary", userMiddleware.isLoggedIn, async (req, res) => {
     var vehicle_cost = result2[0].cost;
   } catch (err) {
     console.log(err);
+    res.send(err, 500);
     return;
   }
 
-  var diffDays =
-    parseInt(end_date.split("-")[2], 10) -
-    parseInt(start_date.split("-")[2], 10);
-  var amount_balance = diffDays * vehicle_cost + insu_cost;
-  var tax_amount = amount_balance * 0.07;
-  var total_amount = amount_balance + tax_amount;
+  try {
+    var diffDays =
+      parseInt(end_date.split("-")[2], 10) -
+      parseInt(start_date.split("-")[2], 10);
+    var amount_balance = diffDays * vehicle_cost + insu_cost;
+    var tax_amount = amount_balance * 0.07;
+    var total_amount = amount_balance + tax_amount;
 
-  res.send({
-    amount_balance: amount_balance,
-    tax_amount: tax_amount,
-    total_amount: total_amount,
-  });
+    res.send({
+      amount_balance: amount_balance,
+      tax_amount: tax_amount,
+      total_amount: total_amount,
+    });
+  } catch (err) {
+    console.log(err);
+    res.send(err, 500);
+    return;
+  }
 });
 
 router.post("/book", userMiddleware.isLoggedIn, async (req, res) => {
