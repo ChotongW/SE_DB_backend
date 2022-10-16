@@ -3,7 +3,6 @@ const bodyParser = require("body-parser");
 const queryDB = require("../config/db");
 const userMiddleware = require("../middleware/role");
 const payment = require("../routes/payment");
-const mongo = require("../config/mongo");
 var uuid = require("uuid");
 
 router = express.Router();
@@ -13,54 +12,6 @@ router.use(
     extended: true,
   })
 );
-
-router.get("/summary", async (req, res) => {
-  await redis.connect();
-  try {
-    let id = await redis.get("id");
-    let vehicle_id = await redis.get("vehicle_id");
-    let start_date = await redis.get("start_date");
-    let end_date = await redis.get("end_date");
-    let in_id = await redis.get("in_id");
-
-    result = {
-      id: id,
-      carId: vehicle_id,
-      bookDate: start_date,
-      returnDate: end_date,
-      in_id: in_id,
-    };
-    console.log(result);
-    res.send(result);
-  } catch (error) {
-    console.log(error);
-    res.send({ message: error });
-  }
-  await redis.disconnect();
-});
-
-router.post("/summary/add", async (req, res) => {
-  let id = req.userData.id;
-  let vehicle_id = req.body.carId;
-  let start_date = req.body.bookDate;
-  let end_date = req.body.returnDate;
-  let in_id = req.body.insuranceId;
-  await redis.connect();
-
-  try {
-    await redis.set("id", id);
-    await redis.set("vehicle_id", vehicle_id);
-    await redis.set("start_date", start_date);
-    await redis.set("end_date", end_date);
-    await redis.set("in_id", in_id);
-
-    res.send({ message: "post already" });
-  } catch (error) {
-    console.log(error);
-    res.send({ message: error });
-  }
-  await redis.disconnect();
-});
 
 const doInsertBooking = async (req, res) => {
   let vehicle_id = req.body.carId;

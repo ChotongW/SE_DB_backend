@@ -3,7 +3,6 @@ router = express.Router();
 const queryDB = require("../config/db");
 const upload = require("../storage/multer");
 const blob = require("../storage/blobCar");
-const mongo = require("../config/mongo");
 const fs = require("fs");
 
 router.get("/getAll", async (req, res) => {
