@@ -42,10 +42,10 @@ router.get("/home", async (req, res) => {
 
 router.get("/search", userMiddleware.isLoggedIn, async (req, res) => {
   //รับเป็น query params นะ
-  let name = req.query.carName;
-  var search = `%${name}%`;
+  let brand = req.query.brand;
+  var search = `%${brand}%`;
   //console.log(search);
-  var sql = "SELECT * FROM vehicles WHERE name like ? ORDER BY brand";
+  var sql = "SELECT * FROM vehicles WHERE brand like ? ORDER BY year DESC";
   try {
     var result = await queryDB(sql, search);
     res.send(result);
