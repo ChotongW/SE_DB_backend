@@ -38,11 +38,10 @@ router.get("/mongo", async (req, res) => {
 
 router.get("/cost", async (req, res) => {
   let in_id = req.body.insuranceId;
+  let vehicle_id = req.body.carId;
+  let start_date = req.body.bookDate;
+  let end_date = req.body.returnDate;
 
-  if (in_id.length == 0) {
-    in_id = "null";
-  }
-  console.log(in_id);
   var sql = "SELECT cost from insurance where in_id = ?";
   try {
     var result = await queryDB(sql, in_id);
@@ -51,12 +50,35 @@ router.get("/cost", async (req, res) => {
     } else {
       insu_cost = result[0].cost;
     }
-    res.send({ message: insu_cost });
+    //res.send({ message: insu_cost });
   } catch (err) {
     console.log(err);
-    res.send({ message: err });
+    //res.send({ message: err });
     return;
   }
+
+  var sql = "SELECT cost from vehicles where vehicle_id = ?";
+  try {
+    var result2 = await queryDB(sql, vehicle_id);
+    var vehicle_cost = result2[0].cost;
+    //res.send({ message: insu_cost });
+  } catch (err) {
+    console.log(err);
+    //res.send({ message: err });
+    return;
+  }
+
+  var diffDays =
+    parseInt(end_date.split("-")[2], 10) -
+    parseInt(start_date.split("-")[2], 10);
+  var amount_balance = diffDays * vehicle_cost + insu_cost;
+  var tax_amount = amount_balance * 0.07;
+  var total_amount = amount_balance + tax_amount;
+  res.send({
+    amount_balance: amount_balance,
+    tax_amount: tax_amount,
+    total_amount: total_amount,
+  });
 });
 
 router.post("/upload", upload.single("file"), async (req, res) => {
