@@ -3,7 +3,7 @@ router = express.Router();
 const queryDB = require("../config/db");
 const upload = require("../storage/multer");
 const blob = require("../storage/blobCar");
-const redis = require("../config/redis");
+const mongo = require("../config/mongo");
 const fs = require("fs");
 
 router.get("/getAll", async (req, res) => {
@@ -32,35 +32,8 @@ router.get("/getAll", async (req, res) => {
   // );
 });
 
-router.get("/redis", async (req, res) => {
-  await redis.connect();
-
-  let vehicle_id = await redis.get("vehicle_id");
-  let start_date = await redis.get("start_date");
-  let end_date = await redis.get("end_date");
-
-  result = {
-    carId: vehicle_id,
-    bookDate: start_date,
-    returnDate: end_date,
-  };
-  console.log(result);
-  res.send(result);
-  await redis.disconnect();
-});
-
-router.post("/redis/add", async (req, res) => {
-  let vehicle_id = req.body.carId;
-  let start_date = req.body.bookDate;
-  let end_date = req.body.returnDate;
-  await redis.connect();
-
-  await redis.set("vehicle_id", vehicle_id);
-  await redis.set("start_date", start_date);
-  await redis.set("end_date", end_date);
-
-  res.send({ message: "post already" });
-  await redis.disconnect();
+router.get("/mongo", async (req, res) => {
+  res.send("hi");
 });
 
 router.get("/cost", async (req, res) => {

@@ -76,10 +76,21 @@ router.get("/payment", userMiddleware.isLoggedIn, async (req, res) => {
     return;
   }
 
+  var sql = "SELECT vehicle_id FROM booking where id_no = ?";
+  try {
+    var result2 = await queryDB(sql, id);
+    var vehicle_id = result2[0].vehicle_id;
+  } catch (err) {
+    console.log(err);
+    res.send(500, { message: err });
+    return;
+  }
+
   var sql = "SELECT * FROM billing where book_id = ?";
   try {
-    var result2 = await queryDB(sql, book_id);
-    res.send(result2);
+    var result3 = await queryDB(sql, book_id);
+    result3[0]["vehicle_id"] = vehicle_id;
+    res.send(result3);
   } catch (err) {
     console.log(err);
     res.send(500, { message: err });
