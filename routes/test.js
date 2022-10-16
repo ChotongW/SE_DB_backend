@@ -16,19 +16,6 @@ router.get("/getAll", async (req, res) => {
     res.send(err, 500);
     return;
   }
-  //console.log("HI THERE!");
-  //res.send(result);
-  // queryDB(
-  //   "SELECT * FROM vehicles",
-  //   undefined,
-  //   (err) => {
-  //     //console.log(err);
-  //     throw (err, res.send(err, 500));
-  //   },
-  //   (result) => {
-  //     res.send(result);
-  //   }
-  // );
 });
 
 router.get("/cost", async (req, res) => {

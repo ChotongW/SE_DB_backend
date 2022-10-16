@@ -110,7 +110,7 @@ async function createBill(amount_balance, tax_amount, total_amount, id_no, id) {
     total_amount == null
   ) {
     console.log({ message: "parameters is undefine, create bill failed." });
-    return null;
+    return { message: "parameters is undefine, create bill failed." };
   }
 
   var sql =
