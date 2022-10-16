@@ -18,9 +18,9 @@ const doInsertBooking = async (req, res) => {
   let start_date = req.body.bookDate;
   let end_date = req.body.returnDate;
   let insurance = req.body.insuranceId;
-  let amount_balance = req.body.amountBalance;
-  let tax_amount = req.body.tax_amount;
-  let total_amount = req.body.total_amount;
+  let amount_balance = parseInt(req.body.amountBalance, 10);
+  let tax_amount = parseInt(req.body.tax_amount, 10);
+  let total_amount = parseInt(req.body.total_amount, 10);
   let id_no = req.userData.id;
   var id = uuid.v4();
 
