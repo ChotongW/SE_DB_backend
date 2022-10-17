@@ -136,7 +136,7 @@ router.get("/summary", userMiddleware.isLoggedIn, async (req, res) => {
     var diffDays =
       parseInt(end_date.split("-")[2], 10) -
       parseInt(start_date.split("-")[2], 10);
-    var amount_balance = (diffDays + 1) * vehicle_cost + insu_cost;
+    var amount_balance = (diffDays + 1) * (vehicle_cost + insu_cost);
     var tax_amount = amount_balance * 0.07;
     var total_amount = amount_balance + tax_amount;
 
