@@ -16,6 +16,22 @@ router.use(
 const doReturnProfile = async (id, userProf, res) => {
   const today = new Date();
   const day = today.getDate() - 1;
+  let book_id = userProf.book_id;
+
+  var sql = "SELECT status FROM booking where book_id = ?";
+  try {
+    var result = await queryDB(sql, book_id);
+    let status = result[0].status;
+    //let book_id = result[0].book_id;
+    if (status === "finished") {
+      userProf["daylefts"] = null;
+      res.status(200).send(userProf);
+      return;
+    }
+  } catch (err) {
+    console.log(err);
+    res.send(500, { message: err });
+  }
 
   var sql = "SELECT end_date FROM booking where id_no = ?";
   try {
