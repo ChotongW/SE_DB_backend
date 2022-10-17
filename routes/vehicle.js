@@ -61,7 +61,7 @@ router.get("/:id", userMiddleware.isLoggedIn, async (req, res) => {
   var sql = "SELECT * FROM vehicles WHERE vehicle_id = ?";
   try {
     var result = await queryDB(sql, vehicleId);
-    res.send(result);
+    res.send(result[0]);
   } catch (err) {
     console.log(err);
     res.send(err, 500);
