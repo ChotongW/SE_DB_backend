@@ -25,12 +25,13 @@ const doReturnProfile = async (id, userProf, res) => {
     //let book_id = result[0].book_id;
     if (status === "finished") {
       userProf["daylefts"] = null;
-      res.status(200).send(userProf);
-      return;
+      //res.status(200).send(userProf);
+      //return;
     }
   } catch (err) {
     console.log(err);
     res.send(500, { message: err });
+    return;
   }
 
   var sql = "SELECT end_date FROM booking where id_no = ?";
@@ -38,7 +39,7 @@ const doReturnProfile = async (id, userProf, res) => {
     var result = await queryDB(sql, id);
     if (result.length === 0) {
       userProf["daylefts"] = null;
-      res.status(200).send(userProf);
+      //res.status(200).send(userProf);
     } else {
       var date = parseInt(
         JSON.stringify(result[0].end_date).split("-")[2].slice(0, 2),
@@ -47,13 +48,14 @@ const doReturnProfile = async (id, userProf, res) => {
       var summary = date - day;
       userProf["daylefts"] = summary;
       //console.log(result[0].daylefts);
-      res.status(200).send(userProf);
+      //res.status(200).send(userProf);
     }
   } catch (err) {
     console.log(err);
     res.send(500, { message: err });
     return;
   }
+  res.status(200).send(userProf);
 };
 
 router.get("/profile", userMiddleware.isLoggedIn, async (req, res) => {
