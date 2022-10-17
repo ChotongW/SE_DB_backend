@@ -154,7 +154,7 @@ router.put(
 
 router.post(
   "/",
-  userMiddleware.isLoggedIn,
+  userMiddleware.isAdmin,
   upload.single("file"),
   async (req, res) => {
     //console.log(req.body);
