@@ -85,7 +85,6 @@ router.put(
 );
 
 router.put("/admin/approve", userMiddleware.isAdmin, async (req, res) => {
-  //ส่ง bill_id กลับมาด้วยนะ *** เป็น form-data นะ ***
   let bill_id = req.body.bill_id;
   //let booking_status = req.booking_status;
   if (bill_id == null) {

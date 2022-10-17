@@ -239,13 +239,25 @@ const doReturn = async (vehicle_id, res) => {
 };
 
 router.put("/return", userMiddleware.isLoggedIn, async (req, res) => {
-  let book_id = req.body.bookId;
+  let id_no = req.userData.id;
+
+  var sql = "SELECT book_id from booking where id_no = ?";
+  try {
+    var result = await queryDB(sql, id_no);
+    // if success does below
+  } catch (err) {
+    console.log(err);
+    res.send(500, { message: err });
+    return;
+  }
+
+  let book_id = result[0].bookId;
 
   var sql = "SELECT bill_status from billing where book_id = ?";
   try {
-    var result = await queryDB(sql, book_id);
+    var result2 = await queryDB(sql, book_id);
     // if success does below
-    let bill_status = result[0].bill_status;
+    let bill_status = result2[0].bill_status;
     if (
       bill_status == "pending" ||
       bill_status == "verification" ||
@@ -262,9 +274,9 @@ router.put("/return", userMiddleware.isLoggedIn, async (req, res) => {
 
   var sql = "SELECT vehicle_id from booking where book_id = ?";
   try {
-    var result = await queryDB(sql, book_id);
+    var result3 = await queryDB(sql, book_id);
     // if success does below
-    doReturn(result[0].vehicle_id, res);
+    doReturn(result3[0].vehicle_id, res);
   } catch (err) {
     console.log(err);
     res.send(500, { message: err });
