@@ -108,12 +108,12 @@ router.get("/booking", userMiddleware.isLoggedIn, async (req, res) => {
   var sql = "SELECT book_id FROM customer where id_no = ?";
   try {
     var result = await queryDB(sql, id);
-    if (result.length == 0) {
+    if (result.length == 0 || result[0].book_id == null) {
       res.send(200, { message: "No book found." });
       return;
     }
     var book_id = result[0].book_id;
-    console.log(book_id);
+    //console.log(book_id);
   } catch (err) {
     console.log(err);
     res.send(500, { message: err });
