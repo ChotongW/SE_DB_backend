@@ -140,10 +140,10 @@ async function createBill(
       total_amount,
       tax_amount,
     ]);
-    console.log({ message: "billed already" });
+    //console.log({ message: "billed already" });
     return { message: "billed already" };
   } catch (err) {
-    console.log(err);
+    //console.log(err);
     return err;
   }
 }

@@ -18,6 +18,51 @@ router.get("/getAll", async (req, res) => {
   }
 });
 
+router.get("/bill", async (req, res) => {
+  let vehicle_id = req.body.carId;
+  let id_no = req.body.id;
+
+  var sql =
+    "SELECT vehicles.availability, customer.book_id \
+  FROM vehicles, customer WHERE vehicles.vehicle_id  = ? \
+  AND customer.id_no = ?";
+  try {
+    var result = await queryDB(sql, [vehicle_id, id_no]);
+    // if success does below
+    console.log(result);
+    let availability = result[0].availability;
+    let book_id = result[0].book_id;
+    if (availability === 0) {
+      res.send({ message: "this car is booked already" }, 400);
+    } else if (book_id) {
+      var sql = "SELECT status FROM booking WHERE book_id = ?";
+      try {
+        var result2 = await queryDB(sql, book_id);
+        let status = result2[0].status;
+        //console.log(typeof status);
+        if (status == "current") {
+          res.send(
+            {
+              message:
+                "You already have booking, pls finised your order first.",
+            },
+            400
+          );
+        } else {
+          res.send(200, { message: "Hi" });
+        }
+      } catch (err) {
+        console.log(err);
+        res.send(500, { message: err });
+        return;
+      }
+    }
+  } catch (err) {
+    console.log(err);
+    res.send(500, { message: err });
+  }
+});
+
 router.get("/cost", async (req, res) => {
   let in_id = req.body.insuranceId;
   let vehicle_id = req.body.carId;

@@ -18,7 +18,7 @@ const doInsertBooking = async (req, res) => {
   let start_date = req.body.bookDate;
   let end_date = req.body.returnDate;
   let insurance = req.body.insuranceId;
-  let amount_balance = parseInt(req.body.amountBalance, 10);
+  let amount_balance = parseInt(req.body.amount_balance, 10);
   let tax_amount = parseInt(req.body.tax_amount, 10);
   let total_amount = parseInt(req.body.total_amount, 10);
   let id_no = req.userData.id;
@@ -40,11 +40,35 @@ const doInsertBooking = async (req, res) => {
       end_date,
       "current",
     ]);
-    res.send(201, { message: "success, booked complete." });
+    console.log({ message: "created booking already." });
   } catch (err) {
     console.log(err);
     res.send(err, 500);
     return;
+  }
+
+  const response = await payment.createBill(
+    amount_balance,
+    tax_amount,
+    total_amount,
+    id_no,
+    id
+  );
+
+  if (response instanceof Error) {
+    console.log(response);
+    res.send(response, 500);
+    var sql = "DELETE FROM booking WHERE book_id = ?;";
+    try {
+      var result = await queryDB(sql, id);
+      console.log({ message: "delete book already" });
+    } catch (err) {
+      console.log(err);
+    }
+    return;
+  } else {
+    console.log(response);
+    res.send(201, { message: "success, booked complete." });
   }
 
   var sql = "UPDATE vehicles SET availability = ? where vehicle_id = ?";
@@ -56,29 +80,6 @@ const doInsertBooking = async (req, res) => {
     res.send(err, 500);
     return;
   }
-
-  try {
-    const response = payment.createBill(
-      amount_balance,
-      tax_amount,
-      total_amount,
-      id_no,
-      id
-    );
-    console.log(response);
-  } catch (err) {
-    console.log(err);
-    res.send(err, 500);
-    return;
-  }
-  const response = payment.createBill(
-    amount_balance,
-    tax_amount,
-    total_amount,
-    id_no,
-    id
-  );
-  console.log(response);
 
   var sql = "UPDATE customer SET book_id = ? WHERE id_no = ?;";
   try {
@@ -155,24 +156,39 @@ router.post("/book", userMiddleware.isLoggedIn, async (req, res) => {
   let id_no = req.userData.id;
   let vehicle_id = req.body.carId;
 
-  var sql =
-    "SELECT vehicles.availability, customer.book_id \
-  FROM vehicles, customer WHERE vehicles.vehicle_id  = ? \
-  AND customer.id_no = ?";
+  var sql = "SELECT availability FROM vehicles WHERE vehicle_id  = ?";
   try {
-    var result = await queryDB(sql, [vehicle_id, id_no]);
+    var result = await queryDB(sql, vehicle_id);
     // if success does below
+    //console.log(result);
     let availability = result[0].availability;
-    let book_id = result[0].book_id;
+    //let book_id = result[0].book_id;
     if (availability === 0) {
       res.send({ message: "this car is booked already" }, 400);
-    } else if (book_id) {
+      return;
+    }
+  } catch (err) {
+    console.log(err);
+    res.send(500, { message: err });
+  }
+
+  var sql = "SELECT book_id FROM customer WHERE id_no  = ?";
+  try {
+    var result2 = await queryDB(sql, id_no);
+    //console.log(result2[0].length);
+    if (result2[0].book_id === null) {
+      doInsertBooking(req, res);
+    } else {
+      let book_id = result2[0].book_id;
+      //console.log(book_id);
+
       var sql = "SELECT status FROM booking WHERE book_id = ?";
       try {
-        var result2 = await queryDB(sql, book_id);
-        let status = result2[0].status;
+        var result3 = await queryDB(sql, book_id);
+        let status = result3[0].status;
         //console.log(typeof status);
         if (status == "current") {
+          console.log("3");
           res.send(
             {
               message:
@@ -180,18 +196,21 @@ router.post("/book", userMiddleware.isLoggedIn, async (req, res) => {
             },
             400
           );
+          return;
+        } else {
+          console.log("4");
+          doInsertBooking(req, res);
         }
       } catch (err) {
         console.log(err);
         res.send(500, { message: err });
         return;
       }
-    } else {
-      doInsertBooking(req, res);
     }
   } catch (err) {
     console.log(err);
-    res.send(500, { message: err });
+    res.send(err, 500);
+    return;
   }
 });
 
