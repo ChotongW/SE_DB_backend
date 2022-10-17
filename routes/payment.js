@@ -35,8 +35,17 @@ router.put(
   upload.single("file"),
   async (req, res) => {
     let slip = req.file;
-    //ส่ง bill_id กลับมาด้วยนะ *** เป็น form-data นะ ***
-    let book_id = req.body.book_id;
+    let id = req.userData.id;
+
+    var sql = "SELECT book_id FROM customer WHERE id_no = ?;";
+    try {
+      var result = await queryDB(sql, id);
+    } catch (err) {
+      console.log(err);
+      res.send(err, 500);
+      return;
+    }
+    let book_id = result[0].book_id;
     //let booking_status = req.booking_status;
     if (slip == null) {
       res.send(
