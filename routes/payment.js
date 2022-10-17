@@ -135,7 +135,7 @@ async function createBill(
     return { message: "billed already" };
   } catch (err) {
     console.log(err);
-    return { message: err };
+    return err;
   }
 }
 

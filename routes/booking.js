@@ -57,6 +57,20 @@ const doInsertBooking = async (req, res) => {
     return;
   }
 
+  try {
+    const response = payment.createBill(
+      amount_balance,
+      tax_amount,
+      total_amount,
+      id_no,
+      id
+    );
+    console.log(response);
+  } catch (err) {
+    console.log(err);
+    res.send(err, 500);
+    return;
+  }
   const response = payment.createBill(
     amount_balance,
     tax_amount,
