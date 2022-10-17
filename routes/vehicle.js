@@ -26,20 +26,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/home", async (req, res) => {
-  var sql =
-    "SELECT vehicle_img FROM vehicles AS r1 JOIN (SELECT CEIL(RAND() * (SELECT MAX(vehicle_id) FROM vehicles)) AS id) AS r2 \
-    WHERE r1.vehicle_id >= r2.id ORDER BY r1.vehicle_id ASC LIMIT 5";
-  try {
-    var result = await queryDB(sql, undefined);
-    res.send(result);
-  } catch (err) {
-    console.log(err);
-    res.send(err, 500);
-    return;
-  }
-});
-
 router.get("/search", userMiddleware.isLoggedIn, async (req, res) => {
   //รับเป็น query params นะ
   let brand = req.query.brand;
