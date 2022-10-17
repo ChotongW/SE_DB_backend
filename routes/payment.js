@@ -100,14 +100,21 @@ router.put("/admin/approve", userMiddleware.isAdmin, async (req, res) => {
   }
 });
 
-async function createBill(amount_balance, tax_amount, total_amount, id_no, id) {
+async function createBill(
+  amount_balance,
+  tax_amount,
+  total_amount,
+  id_no,
+  book_id
+) {
   var id = uuid.v4();
 
   if (
     id_no == null ||
     amount_balance == null ||
     tax_amount == null ||
-    total_amount == null
+    total_amount == null ||
+    book_id == null
   ) {
     console.log({ message: "parameters is undefine, create bill failed." });
     return { message: "parameters is undefine, create bill failed." };

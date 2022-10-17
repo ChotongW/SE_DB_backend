@@ -40,7 +40,7 @@ const doInsertBooking = async (req, res) => {
       end_date,
       "current",
     ]);
-    res.send(201, { message: "booked already" });
+    res.send(201, { message: "success, booked complete." });
   } catch (err) {
     console.log(err);
     res.send(err, 500);
@@ -138,15 +138,24 @@ router.get("/summary", userMiddleware.isLoggedIn, async (req, res) => {
 });
 
 router.post("/book", userMiddleware.isLoggedIn, async (req, res) => {
+  let id_no = req.userData.id;
   let vehicle_id = req.body.carId;
 
-  var sql = "SELECT availability FROM vehicles WHERE vehicle_id = ?";
+  var sql =
+    "SELECT vehicles.availability, customer.book_id \
+  FROM vehicles, customer WHERE vehicles.vehicle_id  = ? \
+  AND customer.id_no = ?";
   try {
-    var result = await queryDB(sql, vehicle_id);
+    var result = await queryDB(sql, [vehicle_id, id_no]);
     // if success does below
     let availability = result[0].availability;
     if (availability === 0) {
       res.send({ message: "this car is booked already" }, 400);
+    } else if (result[0].bookId) {
+      res.send(
+        { message: "You already have booking, pls finised your order first." },
+        400
+      );
     } else {
       doInsertBooking(req, res);
     }
