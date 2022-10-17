@@ -10,7 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@azure/communication-sms": "^1.0.0",
     "@azure/storage-blob": "^12.11.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.0",
@@ -22,7 +21,6 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "mysql": "^2.18.1",
-    "redis": "^4.3.1",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
