@@ -251,7 +251,7 @@ router.put("/return", userMiddleware.isLoggedIn, async (req, res) => {
     return;
   }
 
-  let book_id = result[0].bookId;
+  let book_id = result[0].book_id;
 
   var sql = "SELECT bill_status from billing where book_id = ?";
   try {
