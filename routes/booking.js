@@ -226,9 +226,9 @@ const doReturn = async (vehicle_id, book_id, res) => {
     return;
   }
 
-  var sql = "UPDATE booking SET status = ? where vehicle_id = ?";
+  var sql = "UPDATE booking SET status = ? where book_id = ?";
   try {
-    var result2 = await queryDB(sql, ["finished", vehicle_id]);
+    var result2 = await queryDB(sql, ["finished", book_id]);
     console.log({ message: "update status finished booking already" });
     // if success does below
   } catch (err) {
