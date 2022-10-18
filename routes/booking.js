@@ -214,7 +214,7 @@ router.post("/book", userMiddleware.isLoggedIn, async (req, res) => {
   }
 });
 
-const doReturn = async (vehicle_id, res) => {
+const doReturn = async (vehicle_id, book_id, res) => {
   var sql = "UPDATE vehicles SET availability = ? where vehicle_id = ?";
   try {
     var result = await queryDB(sql, [1, vehicle_id]);
@@ -241,7 +241,7 @@ const doReturn = async (vehicle_id, res) => {
 router.put("/return", userMiddleware.isLoggedIn, async (req, res) => {
   let id_no = req.userData.id;
 
-  var sql = "SELECT book_id from booking where id_no = ?";
+  var sql = "SELECT book_id from customer where id_no = ?";
   try {
     var result = await queryDB(sql, id_no);
     // if success does below
@@ -276,7 +276,8 @@ router.put("/return", userMiddleware.isLoggedIn, async (req, res) => {
   try {
     var result3 = await queryDB(sql, book_id);
     // if success does below
-    doReturn(result3[0].vehicle_id, res);
+    //console.log(result3[0].vehicle_id, book_id);
+    doReturn(result3[0].vehicle_id, book_id, res);
   } catch (err) {
     console.log(err);
     res.send(500, { message: err });
