@@ -92,15 +92,16 @@ router.get("/payment", userMiddleware.isLoggedIn, async (req, res) => {
       return;
     }
     var book_id = result[0].book_id;
+    //console.log(book_id);
   } catch (err) {
     console.log(err);
     res.send(500, { message: err });
     return;
   }
 
-  var sql = "SELECT vehicle_id FROM booking where id_no = ?";
+  var sql = "SELECT vehicle_id FROM booking where book_id = ?";
   try {
-    var result2 = await queryDB(sql, id);
+    var result2 = await queryDB(sql, book_id);
     var vehicle_id = result2[0].vehicle_id;
   } catch (err) {
     console.log(err);
@@ -131,7 +132,8 @@ router.get("/booking", userMiddleware.isLoggedIn, async (req, res) => {
       return;
     }
     var book_id = result[0].book_id;
-    //console.log(book_id);
+    // console.log(result);
+    // console.log(book_id, id);
   } catch (err) {
     console.log(err);
     res.send(500, { message: err });
