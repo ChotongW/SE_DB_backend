@@ -18,6 +18,11 @@ const doReturnProfile = async (id, userProf, res) => {
   const day = today.getDate() - 1;
   let book_id = userProf.book_id;
 
+  if (book_id === null) {
+    res.send(userProf);
+    return;
+  }
+
   var sql = "SELECT end_date FROM booking where book_id = ?";
   try {
     var result = await queryDB(sql, book_id);
@@ -44,7 +49,7 @@ const doReturnProfile = async (id, userProf, res) => {
   try {
     var result = await queryDB(sql, book_id);
     let status = result[0].status;
-    console.log(status);
+    //console.log(status);
     //let book_id = result[0].book_id;
     if (status === "finished") {
       userProf["daylefts"] = null;
@@ -94,7 +99,10 @@ router.get("/payment", userMiddleware.isLoggedIn, async (req, res) => {
       return;
     }
     var book_id = result[0].book_id;
-    //console.log(book_id);
+    if (book_id === null) {
+      res.send({ response: null });
+      return;
+    }
   } catch (err) {
     console.log(err);
     res.send(500, { message: err });
